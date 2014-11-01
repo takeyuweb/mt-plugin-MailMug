@@ -1,0 +1,8 @@
+source 'http://api.berkshelf.com'
+cookbook 'mysql', '~> 5.6.1'
+cookbook 'database', '~> 2.3.0'
+cookbook 'imagemagick', '~> 0.2.3'
+cookbook 'yum', '~> 3.4.1'
+cookbook 'cpan', '~> 0.0.32'
+cookbook 'ark', '~> 0.9.0'
+cookbook 'dev', path: 'site-cookbooks/dev'
