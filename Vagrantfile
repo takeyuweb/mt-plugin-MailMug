@@ -32,6 +32,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
   config.omnibus.chef_version = '11.16.4'
   config.ssh.forward_agent = true
+  config.vm.synced_folder './mt', '/var/www/cgi-bin/mt'
   config.vm.synced_folder './plugins/MailMug', '/var/www/cgi-bin/mt/plugins/MailMug'
   config.vm.synced_folder './mt-static/plugins/MailMug', '/var/www/html/mt-static/plugins/MailMug'
 end
