@@ -1,4 +1,4 @@
-.idea
-mt-plugin-MailMug.iml
-.vagrant
-mt
+/.idea
+/mt-plugin-MailMug.iml
+/.vagrant
+/mt
