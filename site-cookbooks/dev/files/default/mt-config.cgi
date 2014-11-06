@@ -32,3 +32,4 @@ SendMailPath /usr/lib/sendmail
 DefaultLanguage ja
 
 ImageDriver ImageMagick
+DebugMode 2
