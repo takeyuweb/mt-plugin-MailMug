@@ -1,1 +1,29 @@
+id: MailMug
+key: MailMug
 name: MailMug
+version: 0.1
+schema_version: 1
+l10n_class: MailMug::L10N
+
+themes:
+    mail_mug:
+        label: MailMug
+        author_name: Yuichi Takeuchi
+        author_link: http://takeyu-web.com/
+        description: <__trans phrase="The theme of MailMug." />
+        l10n_class: MailMug::L10N
+        class: both
+        protected: 1
+        elements:
+            template_set:
+                importer: template_set
+                data:
+                    base_path: templates
+                    templates:
+                        system:
+                            mail_mug_subject:
+                                label: Mail Subject
+                            mail_mug_text_body:
+                                label: Text Body
+                            mail_mug_html_body:
+                                label: HTML Body
