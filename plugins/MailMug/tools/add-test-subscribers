@@ -1,0 +1,43 @@
+#!/usr/bin/perl -w
+use strict;
+binmode STDOUT, ":utf8";
+
+use FindBin;
+use lib ("$FindBin::Bin/../lib", "$FindBin::Bin/../extlib");
+
+my %opts;
+use Getopt::Long;
+GetOptions("blog_id=i", \my($blog_id),
+           "count=i", \my($count),
+           "format=s", \my($format),
+	       "config=s", \my($cfg));
+$blog_id or die 'usage: '.$0.' --blog_id=<blog_id> --count=<count> [--format=tester$no@your.domain] [--config=<cfg>]';
+
+use MT;
+my $mt = MT->new(defined $cfg ? (Config => $cfg) : ()) or die MT->errstr;
+
+$format = 'test+mail_mug.$no@takeyu-web.com' unless $format;
+
+my $blog = MT->model( 'blog' )->load( $blog_id )
+  or die "Error loading blog_id: $blog_id";
+
+my $plugin = MT->component( 'MailMug' );
+my $role_name = $plugin->translate( 'E-mail magazine subscribers' );
+my $role = MT->model( 'role' )->get_by_key( { name => $role_name } );
+
+for ( my $i=0; $i < $count; $i++ ) {
+  my $no = $i + 1;
+  my $email = $format;
+  $email =~ s/\$no/$no/;
+  my $user = MT->model( 'author' )->get_by_key( { email => $email } );
+  $user->name( 'subscriber' . $no );
+  $user->nickname( 'subscriber' . $no );
+  $user->auth_type( 'MT' );
+  my @alpha  = ( 'a' .. 'z', 'A' .. 'Z', 0 .. 9 );
+  my $password   = join '', map $alpha[ rand @alpha ], 1 .. 16;
+  $user->set_password( $password );
+  $user->save or die $user->errstr;
+  $user->add_role( $role, $blog );
+}
+
+1;
