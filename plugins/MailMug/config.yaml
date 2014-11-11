@@ -2,7 +2,7 @@ id: MailMug
 key: MailMug
 name: MailMug
 version: 0.1
-schema_version: 1
+schema_version: 2
 l10n_class: MailMug::L10N
 
 themes:
@@ -20,6 +20,11 @@ themes:
                 data:
                     base_path: templates
                     templates:
+                        index:
+                            main_index:
+                                label: Main Index
+                                outfile: index.html
+                                rebuild_me: 1
                         system:
                             mail_mug_subject:
                                 label: Mail Subject
@@ -27,3 +32,22 @@ themes:
                                 label: Text Body
                             mail_mug_html_body:
                                 label: HTML Body
+permissions:
+    blog.subscribe_mail_mug:
+        label: Subscribe to e-mail magazine
+        group: mail_mug
+        order: 100
+
+upgrade_functions:
+    install_mail_mug_role_nv:
+        plugin: MailMug
+        code: $MailMug::MailMug::Upgrade::_install_mail_mug_role
+    install_mail_mug_role:
+        plugin: MailMug
+        version_limit: 2
+        code: $MailMug::MailMug::Upgrade::_install_mail_mug_role
+
+callbacks:
+    MT::App::CMS::cms_post_save.entry: $MailMug::MailMug::Callbacks::_hdlr_cms_post_save_entry
+    MT::App::CMS::template_param.edit_role: $MailMug::MailMug::Callbacks::_hdlr_append_permissions_to_edit_role
+

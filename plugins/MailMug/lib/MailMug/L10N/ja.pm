@@ -7,6 +7,11 @@ our %Lexicon = (
     'Mail Subject' => 'メール件名',
     'Text Body' => '本文（プレーンテキストパート）',
     'HTML Body' => '本文（HTMLパート）',
+    'Subscribe to e-mail magazine' => 'メールマガジンの受信',
+    'E-mail magazine' => 'メールマガジン',
+    'E-mail magazine subscribers' => 'メールマガジン購読者',
+    'Subscribe to e-mail magazine.' => 'メールマガジン購読者',
+    'Installing a subscriber role...' => 'メールマガジン購読者ロールをインストールしています...',
 );
 
 1;
