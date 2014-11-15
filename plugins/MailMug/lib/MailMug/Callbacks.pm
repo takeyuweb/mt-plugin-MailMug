@@ -14,7 +14,7 @@ sub _hdlr_cms_post_save_entry {
   1;
 }
 
-sub _hdlr_cms_bulk_save_entry {
+sub _hdlr_cms_post_bulk_save_entries {
   my ( $cb, $app, $ref_objects ) = @_;
   foreach my $data ( @$ref_objects ) {
     my $obj = $data->{ current };

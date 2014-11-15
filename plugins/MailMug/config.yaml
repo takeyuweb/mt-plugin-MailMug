@@ -64,7 +64,7 @@ callbacks:
     MT::App::CMS::cms_post_save.entry:
         priority: 10
         handler: $MailMug::MailMug::Callbacks::_hdlr_cms_post_save_entry
-    MT::App::CMS::cms_bulk_save.entry: $MailMug::MailMug::Callbacks::_hdlr_cms_bulk_save_entry
+    MT::App::CMS::cms_post_bulk_save.entries: $MailMug::MailMug::Callbacks::_hdlr_cms_post_bulk_save_entries
     scheduled_post_published: $MailMug::MailMug::Callbacks::_hdlr_scheduled_post_published
     MT::App::CMS::template_param.edit_role: $MailMug::MailMug::Callbacks::_hdlr_append_permissions_to_edit_role
 
