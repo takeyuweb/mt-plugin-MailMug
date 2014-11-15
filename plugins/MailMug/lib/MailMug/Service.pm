@@ -2,6 +2,7 @@ package MailMug::Service;
 use strict;
 use warnings;
 use MailMug::Util qw( check_for_sending generate_key get_role find_by_sql build_mail );
+use MT::Util qw( epoch2ts );
 use POSIX 'floor';
 
 sub create_job {
@@ -53,6 +54,10 @@ SQL
       $job->uniqkey( $key );
       MT::TheSchwartz->insert($job);
     }
+
+    my $ts = epoch2ts( $entry->blog, time );
+    $entry->meta( 'field.mail_mug_sent_on', $ts );
+    $entry->save or die $entry->errstr;
   };
   if ( my $errstr = $@ ) {
     $subscripter_class->rollback;

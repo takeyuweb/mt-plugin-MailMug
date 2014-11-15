@@ -12,6 +12,10 @@ sub check_for_sending {
   }
   require MT::Entry;
   if ( $entry->status == MT::Entry::RELEASE() ) {
+    my $sent_on = $entry->meta( 'field.mail_mug_sent_on' );
+    if ( $sent_on ) {
+        return 0;
+    }
     if ( defined $orig_entry ) {
       if ( $orig_entry != MT::Entry::RELEASE ) {
         return 1;

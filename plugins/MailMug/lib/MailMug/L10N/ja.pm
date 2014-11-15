@@ -12,6 +12,7 @@ our %Lexicon = (
     'E-mail magazine subscribers' => 'メールマガジン購読者',
     'Subscribe to e-mail magazine.' => 'メールマガジン購読者',
     'Installing a subscriber role...' => 'メールマガジン購読者ロールをインストールしています...',
+    'Sent on' => '送信済み',
 );
 
 1;
