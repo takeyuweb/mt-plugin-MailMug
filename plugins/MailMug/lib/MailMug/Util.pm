@@ -80,22 +80,36 @@ sub build_mail {
     my ( $entry ) = @_;
     my $title = _build_mail_entry_tmpl( $entry, 'mail_mug_subject' );
     my $html = _build_mail_entry_tmpl( $entry, 'mail_mug_html_body' );
+    my $ref_attachment_map = _cut_attachments( $entry, \$html );
     my $text = _build_mail_entry_tmpl( $entry, 'mail_mug_text_body' );
 
     require MIME::Entity;
     my $mime = MIME::Entity->build(
-        Type => 'multipart/related',
-    );
+            Type => 'multipart/alternative',
+        );
     $mime->attach(
+            Type    => 'text/plain;charset="iso-2022-jp"',
+            Data    => [ $text ],
+            Encoding    => "7bit",
+        );
+    my $related = $mime->attach( Type => 'multipart/related' );
+    $related->attach(
         Type    => 'text/html;charset="UTF-8"',
         Data    => [ $html ],
         Encoding => '-SUGGEST',
     );
-    $mime->attach(
-        Type    => 'text/plain;charset="iso-2022-jp"',
-        Data    => [ $text ],
-        Encoding    => "7bit",
-    );
+    foreach my $cid ( keys %$ref_attachment_map ) {
+        my $path = $ref_attachment_map->{ $cid };
+        $related->attach(
+                'Content-ID' => "<$cid>",
+                'X-Attachment-Id' => $cid,
+                Type    => 'image/jpeg',
+                Path    => $path,
+                Encoding => 'base64',
+                Disposition => 'attachment'
+            );
+    }
+
     my $head = $mime->head;
     my $content_type = $head->get( 'Content-Type' );
     my $body = $mime->stringify_body;
@@ -121,6 +135,29 @@ sub _build_mail_entry_tmpl {
 
     my $body = $tmpl->build( $ctx );
     return $body;
+}
+
+sub _cut_attachments {
+    my ( $entry, $ref_html ) = @_;
+    my $blog_url = $entry->blog->site_url;
+    my $host;
+    if ( $blog_url =~ m!^https?://([^/:]+)(:\d+)?/?! ) {
+        $host = $1;
+    } else {
+        $host = 'mail-mug.mail';
+    }
+
+    my %map_attachment;
+    my $count = 0;
+    require File::Spec;
+    while ( $$ref_html =~ s/src="$blog_url([^"]+)"/src="cid:$count\@$host"/ ) {
+        my $rel_path = $1;
+        my $abs_path = File::Spec->catfile( $entry->blog->site_path, $rel_path );
+        $map_attachment{ "$count\@$host" } = $abs_path;
+        $count++;
+        last if $count > 1;
+    }
+    return \%map_attachment;
 }
 
 1;
