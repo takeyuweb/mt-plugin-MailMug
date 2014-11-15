@@ -1,17 +1,13 @@
 package MailMug::Service;
 use strict;
 use warnings;
-use MailMug::Util qw( check_for_sending generate_key get_role find_by_sql );
+use MailMug::Util qw( check_for_sending generate_key get_role find_by_sql build_mail );
 use POSIX 'floor';
 
 sub create_job {
   my ( $entry ) = @_;
 
-  my %mail = (
-    subject => 'subject',
-    text_body => 'text body',
-    html_body => 'html body'
-  );
+  my $mail = build_mail( $entry );
 
   my $role = get_role();
 
@@ -53,7 +49,7 @@ SQL
 
       my $job = TheSchwartz::Job->new();
       $job->funcname( 'MailMug::Worker' );
-      $job->arg( { blog_id => $entry->blog_id, entry_id => $entry->id, mail => \%mail } );
+      $job->arg( { blog_id => $entry->blog_id, entry_id => $entry->id, mail => $mail } );
       $job->uniqkey( $key );
       MT::TheSchwartz->insert($job);
     }

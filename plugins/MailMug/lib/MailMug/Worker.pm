@@ -5,7 +5,6 @@ use base qw( TheSchwartz::Worker );
 use MT;
 use MT::Util qw( is_valid_email );
 use MT::Mail;
-use MIME::Entity;
 
 sub grab_for { 60 * 10 }
 sub retry_delay { 30 }
@@ -51,25 +50,14 @@ sub _process {
     $reply_to  = undef if $reply_to  && !is_valid_email( $reply_to );
     my @subscripters = MT->model( 'mail_mug_subscripter' )->load( { job_key => $job->uniqkey } );
     foreach my $subscripter ( @subscripters ) {
-        my $mime = MIME::Entity->build(
-            Type    => 'text/plain;charset="iso-2022-jp"',
-            Data    => [ $mail->{ text_body } ],
-            Encoding    => "7bit",
-        );
-        $mime->attach(
-            Type    => 'text/html',
-            Data    => [ $mail->{ html_body } ],
-            Encoding => '-SUGGEST',
-        );
-        my $head = $mime->head;
         my %header = (
             $from_addr ? ( From       => $from_addr ) : (),
             $reply_to  ? ( 'Reply-To' => $reply_to )  : (),
             To => $subscripter->email,
             Subject => $mail->{ subject },
-            'Content-Type' => $head->get( 'Content-Type' ),
+            'Content-Type' => $mail->{ content_type },
         );
-        my $body = $mime->stringify_body;
+        my $body = $mail->{ body };
         unless ( MT::Mail->send( \%header, $body ) ) {
             require MT::Log;
             MT->log({

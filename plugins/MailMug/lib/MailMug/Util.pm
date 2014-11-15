@@ -3,7 +3,7 @@ use strict;
 use warnings;
 require Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT_OK = qw( check_for_sending generate_key get_role find_by_sql );
+our @EXPORT_OK = qw( check_for_sending generate_key get_role find_by_sql build_mail );
 
 sub check_for_sending {
   my ( $entry, $orig_entry ) = @_;
@@ -74,6 +74,53 @@ sub find_by_sql {
   $sth->finish();
 
   return wantarray ? @result_set : scalar \@result_set;
+}
+
+sub build_mail {
+    my ( $entry ) = @_;
+    my $title = _build_mail_entry_tmpl( $entry, 'mail_mug_subject' );
+    my $html = _build_mail_entry_tmpl( $entry, 'mail_mug_html_body' );
+    my $text = _build_mail_entry_tmpl( $entry, 'mail_mug_text_body' );
+
+    require MIME::Entity;
+    my $mime = MIME::Entity->build(
+        Type => 'multipart/related',
+    );
+    $mime->attach(
+        Type    => 'text/html;charset="UTF-8"',
+        Data    => [ $html ],
+        Encoding => '-SUGGEST',
+    );
+    $mime->attach(
+        Type    => 'text/plain;charset="iso-2022-jp"',
+        Data    => [ $text ],
+        Encoding    => "7bit",
+    );
+    my $head = $mime->head;
+    my $content_type = $head->get( 'Content-Type' );
+    my $body = $mime->stringify_body;
+    my %mail = (
+        subject => $title,
+        content_type => $content_type,
+        body => $body
+    );
+    return \%mail;
+}
+
+sub _build_mail_entry_tmpl {
+    my ( $entry, $tmpl_type ) = @_;
+    require MT::Template;
+    require MT::Template::Context;
+    my $tmpl = MT::Template->load( {
+        type    => $tmpl_type,
+        blog_id => $entry->blog_id
+    } );
+    my $ctx  = MT::Template::Context->new;
+    $ctx->stash( 'entry', $entry );
+    $tmpl->context( $ctx );
+
+    my $body = $tmpl->build( $ctx );
+    return $body;
 }
 
 1;
