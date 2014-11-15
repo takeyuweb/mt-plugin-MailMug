@@ -1,5 +1,6 @@
-
 # Project modules
+package 'perl-MIME-tools'
+
 %w(Email::Sender::Transport::SMTPS).each do |pkg|
   cpan_client pkg do
     user 'root'

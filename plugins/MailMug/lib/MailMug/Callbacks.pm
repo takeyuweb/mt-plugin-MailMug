@@ -2,10 +2,34 @@ package MailMug::Callbacks;
 use strict;
 use warnings;
 use MT;
+use MailMug::Util qw( check_for_sending );
+use MailMug::Service;
 
 sub _hdlr_cms_post_save_entry {
   my ( $cb, $app, $obj, $orig_obj ) = @_;
+  require MailMug::Service;
+  if ( check_for_sending( $obj, $orig_obj ) ) {
+    MailMug::Service::create_job( $obj );
+  }
+  1;
+}
 
+sub _hdlr_cms_bulk_save_entry {
+  my ( $cb, $app, $ref_objects ) = @_;
+  foreach my $data ( @$ref_objects ) {
+    my $obj = $data->{ current };
+    my $orig_obj = $data->{ original };
+    if ( check_for_sending( $obj, $orig_obj ) ) {
+      MailMug::Service::create_job( $obj );
+    }
+  }
+}
+
+sub _hdlr_scheduled_post_published {
+  my ( $cb, $mt, $obj ) = @_;
+  if ( check_for_sending( $obj ) ) {
+    MailMug::Service::create_job( $obj );
+  }
 }
 
 sub _hdlr_append_permissions_to_edit_role {

@@ -2,7 +2,7 @@ id: MailMug
 key: MailMug
 name: MailMug
 version: 0.1
-schema_version: 2
+schema_version: 6
 l10n_class: MailMug::L10N
 
 themes:
@@ -49,5 +49,14 @@ upgrade_functions:
 
 callbacks:
     MT::App::CMS::cms_post_save.entry: $MailMug::MailMug::Callbacks::_hdlr_cms_post_save_entry
+    MT::App::CMS::cms_bulk_save.entry: $MailMug::MailMug::Callbacks::_hdlr_cms_bulk_save_entry
+    scheduled_post_published: $MailMug::MailMug::Callbacks::_hdlr_scheduled_post_published
     MT::App::CMS::template_param.edit_role: $MailMug::MailMug::Callbacks::_hdlr_append_permissions_to_edit_role
 
+object_types:
+  mail_mug_subscripter: MailMug::Subscripter
+
+task_workers:
+  mail_mug:
+    label: MailMug
+    class: MailMug::Worker
