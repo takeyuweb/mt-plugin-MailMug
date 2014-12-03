@@ -18,13 +18,13 @@ sub sighandler {
 
 sub work {
   my ( $class, $job ) = @_;
-  #eval {
+  eval {
     if ( _process( $job ) ) {
         $job->completed();
     } else {
         $job->failed( 'Sending failed.', 1 );
     }
-  #};
+  };
   if ( my $errstr = $@ ) {
       require MT::TheSchwartz;
       MT::TheSchwartz->debug( $errstr );
