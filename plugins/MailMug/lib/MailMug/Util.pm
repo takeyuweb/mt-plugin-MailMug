@@ -94,7 +94,7 @@ sub build_mail {
         );
     $mime->attach(
             Type    => 'text/plain;charset="iso-2022-jp"',
-            Data    => [ $text ],
+            Data    => [ Encode::encode( 'jis', $text ) ],
             Encoding    => "7bit",
         );
     my $related = $mime->attach( Type => 'multipart/related' );
