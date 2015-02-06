@@ -1,7 +1,6 @@
 package MailMug::Util;
 use strict;
 use warnings;
-use Encode;
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT_OK = qw( check_for_sending generate_key get_role find_by_sql build_mail );
@@ -88,20 +87,21 @@ sub build_mail {
     my $ref_attachment_map = _cut_attachments( $entry, \$html );
     my $text = _build_mail_entry_tmpl( $entry, 'mail_mug_text_body' );
 
+    require Encode;
     require MIME::Entity;
     my $mime = MIME::Entity->build(
             Type => 'multipart/alternative',
         );
     $mime->attach(
             Type    => 'text/plain;charset="iso-2022-jp"',
-            Data    => [ Encode::encode( 'jis', $text ) ],
+            Data    => [ Encode::encode( 'jis', $text ) ],  # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース
             Encoding    => "7bit",
         );
     my $related = $mime->attach( Type => 'multipart/related' );
     $related->attach(
         Type    => 'text/html;charset="UTF-8"',
-        Data    => [ Encode::encode_utf8($html) ],
-        Encoding => 'base64',
+        Data    => [ Encode::encode_utf8( $html ) ],
+        Encoding => 'base64',                               # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース
     );
     foreach my $cid ( keys %$ref_attachment_map ) {
         my $path = $ref_attachment_map->{ $cid };
@@ -118,8 +118,10 @@ sub build_mail {
     my $head = $mime->head;
     my $content_type = $head->get( 'Content-Type' );
     my $body = $mime->stringify_body;
+    require MIME::Base64;
+    my $encoded_subject = MIME::Base64::encode_base64( Encode::encode_utf8( $title ) );
     my %mail = (
-        subject => $title,
+        subject_base64 => $encoded_subject,    # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース
         content_type => $content_type,
         body => $body
     );
