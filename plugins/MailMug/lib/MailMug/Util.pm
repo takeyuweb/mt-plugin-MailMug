@@ -101,7 +101,7 @@ sub build_mail {
     $related->attach(
         Type    => 'text/html;charset="UTF-8"',
         Data    => [ Encode::encode_utf8($html) ],
-        Encoding => '-SUGGEST',
+        Encoding => 'base64',
     );
     foreach my $cid ( keys %$ref_attachment_map ) {
         my $path = $ref_attachment_map->{ $cid };
