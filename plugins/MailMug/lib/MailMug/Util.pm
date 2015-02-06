@@ -1,6 +1,7 @@
 package MailMug::Util;
 use strict;
 use warnings;
+use Encode;
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT_OK = qw( check_for_sending generate_key get_role find_by_sql build_mail );
@@ -99,7 +100,7 @@ sub build_mail {
     my $related = $mime->attach( Type => 'multipart/related' );
     $related->attach(
         Type    => 'text/html;charset="UTF-8"',
-        Data    => [ $html ],
+        Data    => [ Encode::encode_utf8($html) ],
         Encoding => '-SUGGEST',
     );
     foreach my $cid ( keys %$ref_attachment_map ) {
