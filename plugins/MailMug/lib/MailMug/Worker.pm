@@ -18,24 +18,10 @@ sub sighandler {
 
 sub work {
   my ( $class, $job ) = @_;
-  eval {
-    if ( _process( $job ) ) {
-        $job->completed();
-    } else {
-        $job->failed( 'Sending failed.', 1 );
-    }
-  };
-  if ( my $errstr = $@ ) {
-      require MT::TheSchwartz;
-      MT::TheSchwartz->debug( $errstr );
-      $job->permanent_failure( $errstr );
-      require MT::Log;
-      MT->log({
-          blog_id => $job->{ arg }->{ blog_id },
-          message => $errstr,
-          metadata => Data::Dumper->Dump([ $job->arg ]),
-          level => MT::Log::ERROR()
-      });
+  if ( _process( $job ) ) {
+      $job->completed();
+  } else {
+      $job->failed( 'Sending failed.' );
   }
 }
 
@@ -51,30 +37,46 @@ sub _process {
     my $reply_to = $cfg->EmailReplyTo || $cfg->EmailAddressMain;
     $from_addr = undef if $from_addr && !is_valid_email( $from_addr );
     $reply_to  = undef if $reply_to  && !is_valid_email( $reply_to );
-    my @subscripters = MT->model( 'mail_mug_subscripter' )->load( { job_key => $job->uniqkey } );
+    my $subscripter_class = MT->model( 'mail_mug_subscripter' );
+    my @subscripters = $subscripter_class->load( { job_key => $job->uniqkey } );
+
+    my $success = 1;
     foreach my $subscripter ( @subscripters ) {
-        my %header = (
-            $from_addr ? ( From       => $from_addr ) : (),
-            $reply_to  ? ( 'Reply-To' => $reply_to )  : (),
-            To => $subscripter->email,
-            Subject => $subject,
-            'Content-Type' => $mail->{ content_type },
-        );
-        my $body = $mail->{ body };
-        unless ( MT::Mail->send( \%header, $body ) ) {
-            require MT::Log;
-            MT->log({
-                blog_id => $job->{ arg }->{ blog_id },
-                message => MT::Mail->errstr,
-                metadata => Data::Dumper->Dump([ $job->arg ]),
-                level => MT::Log::ERROR()
-            });
-            return 0;
+        $subscripter_class->begin_work();
+        # Data::ObjectDriver::BaseObject#begin_work
+        # begin_work後（txn_active=1）の操作（existsなど）で実際のトランザクションが開始される
+        if ( $subscripter->exists() ) {
+            eval {
+                my %header = (
+                    $from_addr ? ( From       => $from_addr ) : (),
+                    $reply_to  ? ( 'Reply-To' => $reply_to )  : (),
+                    To => $subscripter->email,
+                    Subject => $subject,
+                    'Content-Type' => $mail->{ content_type },
+                );
+                my $body = $mail->{ body };
+
+                $subscripter->remove
+                    or die $subscripter->errstr;
+                MT::Mail->send( \%header, $body )
+                    or die MT::Mail->errstr;
+            };
+            if ( my $errstr = $@ ) {
+                $subscripter_class->rollback();
+                require MT::Log;
+                MT->log({
+                    blog_id => $job->{ arg }->{ blog_id },
+                    message => $errstr,
+                    metadata => Data::Dumper->Dump([ $job->arg ]),
+                    level => MT::Log::ERROR()
+                });
+                $success = 0;
+                next;
+            }
         }
-        $subscripter->remove
-            or die $subscripter->errstr;
+        $subscripter_class->commit();
     }
-    return 1;
+    return $success;
 }
 
 1;
