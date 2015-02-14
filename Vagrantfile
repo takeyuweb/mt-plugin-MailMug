@@ -1,6 +1,7 @@
 # vagrant up
 # vagrant vagrant rsync-auto
 
+Encoding.default_external = 'UTF-8'
 VAGRANTFILE_API_VERSION = '2'
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|

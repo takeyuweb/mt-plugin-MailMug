@@ -1,3 +1,4 @@
+Encoding.default_external = 'UTF-8'
 source 'http://api.berkshelf.com'
 cookbook 'mysql', '~> 5.6.1'
 cookbook 'database', '~> 2.3.0'
