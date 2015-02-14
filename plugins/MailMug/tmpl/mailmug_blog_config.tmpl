@@ -1,0 +1,17 @@
+<mtapp:setting
+        id="mail_format"
+        label="<__trans phrase='Mail Format'>"
+        show_hint="0">
+    <label>
+        <input type="radio" name="mail_format" value="default"<mt:If name='mail_format' eq='default'> checked="checked"</mt:If>>
+        HTML & Plain Text (multipart)
+    </label>
+    <label>
+        <input type="radio" name="mail_format" value="html"<mt:If name='mail_format' eq='html'> checked="checked"</mt:If>>
+        HTML only
+    </label>
+    <label>
+        <input type="radio" name="mail_format" value="plain"<mt:If name='mail_format' eq='plain'> checked="checked"</mt:If>>
+        Plain Text only
+    </label>
+</mtapp:setting>

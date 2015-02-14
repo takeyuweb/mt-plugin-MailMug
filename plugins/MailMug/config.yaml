@@ -75,3 +75,11 @@ task_workers:
   mail_mug:
     label: MailMug
     class: MailMug::Worker
+
+blog_config_template: mailmug_blog_config.tmpl
+
+settings:
+  mail_format:
+    default: default
+    scope: blog
+

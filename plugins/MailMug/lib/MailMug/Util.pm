@@ -87,21 +87,32 @@ sub build_mail {
     my $ref_attachment_map = _cut_attachments( $entry, \$html );
     my $text = _build_mail_entry_tmpl( $entry, 'mail_mug_text_body' );
 
+    my $plugin = MT->component( 'MailMug' );
+    my $mail_format = $plugin->get_config_value( 'mail_format', "blog:@{[ $entry->blog_id ]}" ) || 'default';
+
+    my ( $content_type, $body );
+    if ( $mail_format eq 'plain' ) {
+        $content_type = 'text/plain;charset="iso-2022-jp"';
+        $body = Encode::encode( 'jis', $text );
+    } else {
+
     require Encode;
     require MIME::Entity;
     my $mime = MIME::Entity->build(
             Type => 'multipart/alternative',
         );
-    $mime->attach(
-            Type    => 'text/plain;charset="iso-2022-jp"',
-            Data    => [ Encode::encode( 'jis', $text ) ],  # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース
-            Encoding    => "7bit",
+    if ( $mail_format eq 'default' ) {
+        $mime->attach(
+                Type    => 'text/plain;charset="iso-2022-jp"',
+                Data    => [ Encode::encode( 'jis', $text ) ],  # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース
+                Encoding    => "7bit",
         );
+    }
     my $related = $mime->attach( Type => 'multipart/related' );
     $related->attach(
-        Type    => 'text/html;charset="UTF-8"',
-        Data    => [ Encode::encode_utf8( $html ) ],
-        Encoding => 'base64',                               # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース
+            Type    => 'text/html;charset="UTF-8"',
+            Data    => [ Encode::encode_utf8( $html ) ],
+            Encoding => 'base64',                               # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース
     );
     foreach my $cid ( keys %$ref_attachment_map ) {
         my $path = $ref_attachment_map->{ $cid };
@@ -116,8 +127,10 @@ sub build_mail {
     }
 
     my $head = $mime->head;
-    my $content_type = $head->get( 'Content-Type' );
-    my $body = $mime->stringify_body;
+    $content_type = $head->get( 'Content-Type' );
+    $body = $mime->stringify_body;
+    }
+
     require MIME::Base64;
     my $encoded_subject = MIME::Base64::encode_base64( Encode::encode_utf8( $title ) );
     my %mail = (
