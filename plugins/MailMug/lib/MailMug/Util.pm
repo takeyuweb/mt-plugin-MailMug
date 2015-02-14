@@ -105,58 +105,57 @@ sub build_mail {
             $content_transfer_encoding = 'base64';
         }
     } else {
-
-    require Encode;
-    require MIME::Entity;
-    my $mime = MIME::Entity->build(
-            Type => 'multipart/alternative',
-        );
-    if ( $mail_format eq 'default' ) {
+        require Encode;
+        require MIME::Entity;
+        my $mime = MIME::Entity->build(
+                Type => 'multipart/alternative',
+            );
+        if ( $mail_format eq 'default' ) {
+            if ( $mail_encoding eq 'jis' ) {
+                $mime->attach(
+                        Type    => 'text/plain;charset="iso-2022-jp"',
+                        Data    => [ Encode::encode( 'jis', $text ) ],  # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース
+                        Encoding    => "7bit",
+                );
+            } else {
+                $mime->attach(
+                        Type    => 'text/plain;charset="utf-8"',
+                        Data    => [ Encode::encode_utf8( $text ) ],
+                        Encoding => 'base64',                           # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース
+                );
+            }
+        }
+        my $related = $mime->attach( Type => 'multipart/related' );
         if ( $mail_encoding eq 'jis' ) {
-            $mime->attach(
-                    Type    => 'text/plain;charset="iso-2022-jp"',
-                    Data    => [ Encode::encode( 'jis', $text ) ],  # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース
-                    Encoding    => "7bit",
+            $related->attach(
+                    Type    => 'text/html;charset="iso-2022-jp"',
+                    Data    => [ Encode::encode( 'jis', $html ) ],
+                    Encoding => '7bit',                                 # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース
             );
         } else {
-            $mime->attach(
-                    Type    => 'text/plain;charset="utf-8"',
-                    Data    => [ Encode::encode_utf8( $text ) ],
-                    Encoding => 'base64',                           # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース
+            $related->attach(
+                   Type    => 'text/html;charset="UTF-8"',
+                    Data    => [ Encode::encode_utf8( $html ) ],
+                    Encoding => 'base64',                               # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース
             );
         }
-    }
-    my $related = $mime->attach( Type => 'multipart/related' );
-    if ( $mail_encoding eq 'jis' ) {
-        $related->attach(
-                Type    => 'text/html;charset="iso-2022-jp"',
-                Data    => [ Encode::encode( 'jis', $html ) ],
-                Encoding => '7bit',                                 # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース
-        );
-    } else {
-        $related->attach(
-                Type    => 'text/html;charset="UTF-8"',
-                Data    => [ Encode::encode_utf8( $html ) ],
-                Encoding => 'base64',                               # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース
-        );
-    }
-    foreach my $cid ( keys %$ref_attachment_map ) {
-        my $path = $ref_attachment_map->{ $cid };
-        $related->attach(
-                'Content-ID' => "<$cid>",
-                'X-Attachment-Id' => $cid,
-                Type    => 'image/jpeg',
-                Path    => $path,
-                Encoding => 'base64',
-                Disposition => 'attachment'
-            );
-    }
+        foreach my $cid ( keys %$ref_attachment_map ) {
+            my $path = $ref_attachment_map->{ $cid };
+            $related->attach(
+                    'Content-ID' => "<$cid>",
+                    'X-Attachment-Id' => $cid,
+                    Type    => 'image/jpeg',
+                    Path    => $path,
+                    Encoding => 'base64',
+                    Disposition => 'attachment'
+                );
+        }
 
-    my $head = $mime->head;
-    #$content_transfer_encoding = $head->get( 'Content-Transfer-Encoding' );
-    $content_transfer_encoding = '7bit';
-    $content_type = $head->get( 'Content-Type' );
-    $body = $mime->stringify_body;
+        my $head = $mime->head;
+        #$content_transfer_encoding = $head->get( 'Content-Transfer-Encoding' );
+        $content_transfer_encoding = '7bit';
+        $content_type = $head->get( 'Content-Type' );
+        $body = $mime->stringify_body;
     }
 
     my $encoded_subject = MIME::Base64::encode_base64( Encode::encode_utf8( $title ) );
