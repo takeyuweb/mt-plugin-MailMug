@@ -43,8 +43,7 @@ sub _process {
     my $success = 1;
     foreach my $subscripter ( @subscripters ) {
         $subscripter_class->begin_work();
-        # Data::ObjectDriver::BaseObject#begin_work
-        # begin_work後（txn_active=1）の操作（existsなど）で実際のトランザクションが開始される
+        # http://takeyuweb.hatenablog.com/entry/2015/02/14/170117
         if ( $subscripter->exists() ) {
             eval {
                 my %header = (
