@@ -47,11 +47,13 @@ sub _process {
         if ( $subscripter->exists() ) {
             eval {
                 my %header = (
+                    id => 'mail_mug',
                     $from_addr ? ( From       => $from_addr ) : (),
                     $reply_to  ? ( 'Reply-To' => $reply_to )  : (),
                     To => $subscripter->email,
                     Subject => $subject,
                     'Content-Type' => $mail->{ content_type },
+                    'Content-Transfer-Encoding' => $mail->{ content_transfer_encoding }
                 );
                 my $body = $mail->{ body };
 

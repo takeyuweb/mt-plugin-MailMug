@@ -82,6 +82,8 @@ sub find_by_sql {
 
 sub build_mail {
     my ( $entry ) = @_;
+    require MIME::Base64;
+
     my $title = _build_mail_entry_tmpl( $entry, 'mail_mug_subject' );
     my $html = _build_mail_entry_tmpl( $entry, 'mail_mug_html_body' );
     my $ref_attachment_map = _cut_attachments( $entry, \$html );
@@ -89,11 +91,19 @@ sub build_mail {
 
     my $plugin = MT->component( 'MailMug' );
     my $mail_format = $plugin->get_config_value( 'mail_format', "blog:@{[ $entry->blog_id ]}" ) || 'default';
+    my $mail_encoding = $plugin->get_config_value( 'mail_encoding', "blog:@{[ $entry->blog_id ]}" ) || 'utf-8';
 
-    my ( $content_type, $body );
+    my ( $content_transfer_encoding, $content_type, $body );
     if ( $mail_format eq 'plain' ) {
-        $content_type = 'text/plain;charset="iso-2022-jp"';
-        $body = Encode::encode( 'jis', $text );
+        if ( $mail_encoding eq 'jis' ) {
+            $content_type = 'text/plain;charset="iso-2022-jp"';
+            $body = Encode::encode( 'jis', $text );
+            $content_transfer_encoding = '7bit';
+        } else {
+            $content_type = 'text/plain;charset="utf-8"';
+            $body = MIME::Base64::encode_base64( Encode::encode_utf8( $text ) );
+            $content_transfer_encoding = 'base64';
+        }
     } else {
 
     require Encode;
@@ -102,18 +112,34 @@ sub build_mail {
             Type => 'multipart/alternative',
         );
     if ( $mail_format eq 'default' ) {
-        $mime->attach(
-                Type    => 'text/plain;charset="iso-2022-jp"',
-                Data    => [ Encode::encode( 'jis', $text ) ],  # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース
-                Encoding    => "7bit",
-        );
+        if ( $mail_encoding eq 'jis' ) {
+            $mime->attach(
+                    Type    => 'text/plain;charset="iso-2022-jp"',
+                    Data    => [ Encode::encode( 'jis', $text ) ],  # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース
+                    Encoding    => "7bit",
+            );
+        } else {
+            $mime->attach(
+                    Type    => 'text/plain;charset="utf-8"',
+                    Data    => [ Encode::encode_utf8( $text ) ],
+                    Encoding => 'base64',                           # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース
+            );
+        }
     }
     my $related = $mime->attach( Type => 'multipart/related' );
-    $related->attach(
-            Type    => 'text/html;charset="UTF-8"',
-            Data    => [ Encode::encode_utf8( $html ) ],
-            Encoding => 'base64',                               # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース
-    );
+    if ( $mail_encoding eq 'jis' ) {
+        $related->attach(
+                Type    => 'text/html;charset="iso-2022-jp"',
+                Data    => [ Encode::encode( 'jis', $html ) ],
+                Encoding => '7bit',                                 # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース
+        );
+    } else {
+        $related->attach(
+                Type    => 'text/html;charset="UTF-8"',
+                Data    => [ Encode::encode_utf8( $html ) ],
+                Encoding => 'base64',                               # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース
+        );
+    }
     foreach my $cid ( keys %$ref_attachment_map ) {
         my $path = $ref_attachment_map->{ $cid };
         $related->attach(
@@ -127,15 +153,17 @@ sub build_mail {
     }
 
     my $head = $mime->head;
+    #$content_transfer_encoding = $head->get( 'Content-Transfer-Encoding' );
+    $content_transfer_encoding = '7bit';
     $content_type = $head->get( 'Content-Type' );
     $body = $mime->stringify_body;
     }
 
-    require MIME::Base64;
     my $encoded_subject = MIME::Base64::encode_base64( Encode::encode_utf8( $title ) );
     my %mail = (
         subject_base64 => $encoded_subject,    # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース
         content_type => $content_type,
+        content_transfer_encoding => $content_transfer_encoding,
         body => $body
     );
     return \%mail;

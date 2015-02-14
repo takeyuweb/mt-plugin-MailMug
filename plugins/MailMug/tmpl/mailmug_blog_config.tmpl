@@ -15,3 +15,16 @@
         Plain Text only
     </label>
 </mtapp:setting>
+<mtapp:setting
+        id="mail_encoding"
+        label="<__trans phrase='Mail Encoding'>"
+        show_hint="0">
+    <label>
+        <input type="radio" name="mail_encoding" value="utf-8"<mt:If name='mail_encoding' eq='utf-8'> checked="checked"</mt:If>>
+        UTF-8
+    </label>
+    <label>
+        <input type="radio" name="mail_encoding" value="jis"<mt:If name='mail_encoding' eq='jis'> checked="checked"</mt:If>>
+        JIS
+    </label>
+</mtapp:setting>

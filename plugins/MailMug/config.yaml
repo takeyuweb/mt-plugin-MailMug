@@ -67,6 +67,7 @@ callbacks:
     MT::App::CMS::cms_post_bulk_save.entries: $MailMug::MailMug::Callbacks::_hdlr_cms_post_bulk_save_entries
     scheduled_post_published: $MailMug::MailMug::Callbacks::_hdlr_scheduled_post_published
     MT::App::CMS::template_param.edit_role: $MailMug::MailMug::Callbacks::_hdlr_append_permissions_to_edit_role
+    mail_filter: $MailMug::MailMug::Callbacks::_hdlr_mail_filter_content_transfer_encoding_overwriting
 
 object_types:
   mail_mug_subscripter: MailMug::Subscripter
@@ -82,4 +83,6 @@ settings:
   mail_format:
     default: default
     scope: blog
-
+  mail_encoding:
+    default: utf-8
+    scope: blog

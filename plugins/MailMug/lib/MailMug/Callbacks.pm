@@ -53,4 +53,20 @@ MTML
   $tmpl->insertAfter( $node, $pointer );
 }
 
+sub _hdlr_mail_filter_content_transfer_encoding_overwriting {
+  my $cb = shift;
+  my %params = @_;
+  # args     => $hdrs_arg,
+  # headers  => \%hdrs,
+  # body     => \$body,
+  # transfer => \$xfer,
+  # ( $id ? ( id => $id ) : () )
+  if ( $params{ id } && $params{ id } eq 'mail_mug' ) {
+    if ( $params{ args }->{ 'Content-Transfer-Encoding' } ) {
+      $params{ headers }->{ 'Content-Transfer-Encoding' } = $params{ args }->{ 'Content-Transfer-Encoding' };
+    }
+  }
+  1;
+}
+
 1;
