@@ -17,7 +17,7 @@ sub create_job {
   require TheSchwartz::Job;
 
   my $subscripter_class = MT->model( 'mail_mug_subscripter' );
-  $subscripter_class->begin_work;
+  $subscripter_class->driver->begin_work; # 直接driverを叩いてSQL INSERTするので
   eval {
     my $count_sql = <<"SQL";
 select COUNT(DISTINCT mt_author.author_id) AS cnt
@@ -61,7 +61,7 @@ SQL
     $entry->save or die $entry->errstr;
   };
   if ( my $errstr = $@ ) {
-    $subscripter_class->rollback;
+    $subscripter_class->driver->rollback;
     require MT::Log;
     MT->log({
       message => $errstr,
@@ -70,7 +70,7 @@ SQL
       level => MT::Log::ERROR()
     });
   } else {
-    $subscripter_class->commit;
+    $subscripter_class->driver->commit;
   }
 }
 
