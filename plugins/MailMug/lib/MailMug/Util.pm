@@ -3,7 +3,7 @@ use strict;
 use warnings;
 require Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT_OK = qw( check_for_sending generate_key get_role find_by_sql build_mail );
+our @EXPORT_OK = qw( check_for_sending generate_key get_roles find_by_sql build_mail );
 
 sub check_for_sending {
   my ( $entry, $orig_entry ) = @_;
@@ -38,11 +38,11 @@ sub generate_key {
   return $str;
 }
 
-sub get_role {
-  my $plugin = MT->component( 'MailMug' );
-  my $role_name = $plugin->translate( 'E-mail magazine subscribers' );
-  my $role = MT->model( 'role' )->load( { name => $role_name }, { limit => 1 } );
-  return $role;
+sub get_roles {
+  my @roles = MT->model( 'role' )->load(
+    { permissions => "\%'subscribe_mail_mug'\%" },
+    { 'like' => { 'permissions' => 1 } });
+  return @roles;
 }
 
 sub find_by_sql {

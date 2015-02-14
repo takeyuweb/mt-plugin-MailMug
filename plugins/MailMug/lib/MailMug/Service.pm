@@ -1,7 +1,7 @@
 package MailMug::Service;
 use strict;
 use warnings;
-use MailMug::Util qw( check_for_sending generate_key get_role find_by_sql build_mail );
+use MailMug::Util qw( check_for_sending generate_key get_roles find_by_sql build_mail );
 use MT::Util qw( epoch2ts );
 use POSIX 'floor';
 
@@ -10,7 +10,8 @@ sub create_job {
 
   my $mail = build_mail( $entry );
 
-  my $role = get_role();
+  my @role_ids = map { $_->id } get_roles();
+  return unless @role_ids;
 
   require MT::TheSchwartz;
   require TheSchwartz::Job;
@@ -18,15 +19,15 @@ sub create_job {
   my $subscripter_class = MT->model( 'mail_mug_subscripter' );
   $subscripter_class->begin_work;
   eval {
-    my $count_sql = <<'SQL';
-select COUNT(mt_author.author_id)
+    my $count_sql = <<"SQL";
+select COUNT(DISTINCT mt_author.author_id) AS cnt
 from mt_association
   INNER JOIN mt_author ON mt_author.author_id = mt_association.association_author_id
-WHERE association_blog_id=? AND association_role_id=?;
+WHERE association_blog_id=? AND association_role_id IN (@{[ join ',', map{'?'} @role_ids ]});
 SQL
-    my @count_values = ( $entry->blog_id, $role->id );
+    my @count_values = ( $entry->blog_id, @role_ids );
     my @count_results = find_by_sql( $count_sql, \@count_values );
-    my $count = $count_results[0]->{ 'COUNT(mt_author.author_id)' };
+    my $count = $count_results[0]->{ 'cnt' };
 
     my $limit = 100;
     my $total_page = $count / $limit;
@@ -36,16 +37,16 @@ SQL
     for ( my $page = 1; $page <= $total_page; $page++ ) {
       my $offset = $limit * ( $page - 1 );
       my $key = generate_key(16);
-      my $insert_sql = <<'SQL';
+      my $insert_sql = <<"SQL";
 insert into mt_mail_mug_subscripter (mail_mug_subscripter_job_key, mail_mug_subscripter_email)
-select ?, mt_author.author_email
+select DISTINCT ?, mt_author.author_email
 from mt_association
   INNER JOIN mt_author ON mt_author.author_id = mt_association.association_author_id
-WHERE association_blog_id=? AND association_role_id=?
+WHERE association_blog_id=? AND association_role_id IN (@{[ join ',', map{'?'} @role_ids ]})
 ORDER BY mt_author.author_email
 LIMIT ? OFFSET ?;
 SQL
-      my @insert_values = ( $key, $entry->blog_id, $role->id, $limit, $offset );
+      my @insert_values = ( $key, $entry->blog_id, @role_ids, $limit, $offset );
       find_by_sql( $insert_sql, \@insert_values );
 
       my $job = TheSchwartz::Job->new();
