@@ -28,3 +28,15 @@
         JIS
     </label>
 </mtapp:setting>
+<mtapp:setting
+        id="reply_to"
+        label="<__trans phrase='Reply-To'>"
+        show_hint="0">
+    <input type="text" name="reply_to" value="<$mt:getvar name='reply_to' escape='html'$>">
+</mtapp:setting>
+<mtapp:setting
+        id="return_path"
+        label="<__trans phrase='Return-Path'>"
+        show_hint="0">
+    <input type="text" name="return_path" value="<$mt:getvar name='return_path' escape='html'$>">
+</mtapp:setting>

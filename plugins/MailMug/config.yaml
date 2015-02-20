@@ -86,3 +86,9 @@ settings:
   mail_encoding:
     default: utf-8
     scope: blog
+  reply_to:
+    default:
+    scope: blog
+  return_path:
+    default:
+    scope: blog
