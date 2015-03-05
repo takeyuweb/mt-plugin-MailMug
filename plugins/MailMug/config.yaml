@@ -5,7 +5,7 @@ author_name: Yuichi Takeuchi
 author_link: http://takeyu-web.com/
 doc_link: https://github.com/takeyuweb/mt-plugin-MailMug/
 description: <__trans phrase="__PLUGIN_DESCRIPTION__">
-version: 0.4
+version: 0.5
 schema_version: 8
 l10n_class: MailMug::L10N
 
@@ -77,6 +77,13 @@ applications:
                 mode: start_import_subscripters
                 dialog: 1
                 permission: manage_users
+                condition: |
+                    sub {
+                        my $app = MT->instance;
+                        my $blog = $app->blog;
+                        require MailMug::Util;
+                        MailMug::Util::mail_mug_enabled( $blog ) && $blog->is_blog;
+                    }
         methods:
             start_import_subscripters: $MailMug::MailMug::CMS::start_import_subscripters
             import_subscripters: $MailMug::MailMug::CMS::import_subscripters
@@ -93,7 +100,9 @@ content_actions:
             condition: |
               sub {
                   my $app = MT->instance;
-                  $app->blog->is_blog;
+                  my $blog = $app->blog;
+                  require MailMug::Util;
+                  MailMug::Util::mail_mug_enabled( $blog ) && $blog->is_blog;
               }
         import_subscripters_website:
             class: icon-create
@@ -104,7 +113,9 @@ content_actions:
             condition: |
               sub {
                   my $app = MT->instance;
-                  !$app->blog->is_blog;
+                  my $blog = $app->blog;
+                  require MailMug::Util;
+                  MailMug::Util::mail_mug_enabled( $blog ) && !$blog->is_blog;
               }
 
 object_types:
