@@ -55,6 +55,14 @@ sub import_subscripters {
         }
         close $tmp_fh;
 
+        my $sess_obj = MT->model( 'session' )->get_by_key( {
+             id   => $out,
+             kind => 'TF',
+             name => $path,
+        } );
+        $sess_obj->start(time + 60 * 60);
+        $sess_obj->save;
+
         my %params = (
             blog_id         => $blog->id,
             out             => $out,
@@ -105,6 +113,12 @@ sub import_subscripters {
             $app->build_page('import_subscripters.tmpl', \%params);
         } else {
             unlink $path;
+            my $sess_obj = MT->model( 'session' )->load( {
+                kind => 'TF',
+                name => $path,
+            }, { limit => 1 } );
+            $sess_obj->remove if $sess_obj;
+
             my $uri =$app->uri(
                 mode => 'complete_import_subscripters',
                 args => {
@@ -121,7 +135,11 @@ sub import_subscripters {
 sub _import_user {
     my ( $blog, $email ) = @_;
     my $role = _get_role();
-    my $user = MT->model( 'author' )->load( { email => $email }, { limit => 1 } );
+    my $user = MT->model( 'author' )->load( {
+        type      => MT->model( 'author' )->AUTHOR(),
+        auth_type => 'MT',
+        email     => $email
+    }, { limit => 1 } );
     unless ( defined $user ) {
         $user = MT->model( 'author' )->new;
         $user->set_defaults();
