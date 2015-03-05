@@ -57,7 +57,7 @@ SQL
     }
 
     my $ts = epoch2ts( $entry->blog, time );
-    $entry->meta( 'field.mail_mug_sent_on', $ts );
+    $entry->mm_sent_on( $ts );
     $entry->save or die $entry->errstr;
   };
   if ( my $errstr = $@ ) {

@@ -2,7 +2,7 @@ package MailMug::Callbacks;
 use strict;
 use warnings;
 use MT;
-use MailMug::Util qw( check_for_sending );
+use MailMug::Util qw( mail_mug_enabled check_for_sending );
 use MailMug::Service;
 
 sub _hdlr_cms_post_save_entry {
@@ -65,6 +65,61 @@ sub _hdlr_mail_filter_content_transfer_encoding_overwriting {
     if ( $params{ args }->{ 'Content-Transfer-Encoding' } ) {
       $params{ headers }->{ 'Content-Transfer-Encoding' } = $params{ args }->{ 'Content-Transfer-Encoding' };
     }
+  }
+  1;
+}
+
+sub _hdlr_append_delivering_field {
+  my ( $cb, $app, $param, $tmpl ) = @_;
+  my $blog = $app->blog or return 1;
+  my $plugin = MT->component( 'MailMug' );
+
+  my $host_node = $tmpl->getElementById( 'entry-status-widget' );
+  my $innerHTML = <<'TMPL';
+<__trans_section component="MailMug">
+<mt:If name="mm_sent_on" gt="0">
+  <__trans phrase="Deliverd at [_1]" params="<$mt:date ts='$mm_sent_on'$>">
+  <input type="hidden" name="mm_allow_delivering" value="<$mt:getvar name='mm_allow_delivering'$>">
+  <input type="hidden" name="mm_sent_on" value="<$mt:getvar name='mm_sent_on' escape='html'$>">
+<mt:Else>
+  <input type="checkbox" name="mm_allow_delivering" id="mm_allow_delivering" value="1"<mt:if name="mm_allow_delivering"> checked="checked"</mt:if> class="cb" /> <label for="mm_allow_delivering"><__trans phrase="Allow Delivering"></label>
+  <input type="hidden" name="mm_allow_delivering" value="0">
+  <input type="hidden" name="mm_sent_on" value="<$mt:getvar name='mm_sent_on' escape='html'$>">
+</mt:If>
+</__trans_section>
+TMPL
+  my $block_node = $tmpl->createElement(
+    'app:widget',
+    {
+      id => 'mail_magazine',
+      label => $plugin->translate( 'E-mail magazine' ),
+      label_class => 'top-label',
+    }
+  );
+  $block_node->innerHTML( $innerHTML );
+  $tmpl->insertAfter($block_node, $host_node);
+
+  if ( $app->param( 'reedit' ) ) {
+    $param->{ mm_allow_delivering } = $app->param( 'mm_allow_delivering' );
+  }
+
+  unless ( mail_mug_enabled( $blog ) ) {
+    my $html_head_node = @{ $tmpl->getElementsByName( 'html_head' ) }[0];
+    my $style = <<'STYLE';
+<style type="text/css">
+#mail_magazine { display: none; }
+</style>
+STYLE
+    my $style_node = $tmpl->createElement(
+        'setvarblock',
+        {
+          id => 'mail_magazine',
+          name => 'html_head',
+          append => '1'
+        }
+    );
+    $style_node->innerHTML( $style );
+    $tmpl->insertAfter($style_node, $html_head_node);
   }
   1;
 }

@@ -1,8 +1,8 @@
 id: MailMug
 key: MailMug
 name: MailMug
-version: 0.2
-schema_version: 7
+version: 0.3
+schema_version: 8
 l10n_class: MailMug::L10N
 
 themes:
@@ -15,19 +15,6 @@ themes:
         class: both
         protected: 1
         elements:
-            custom_fields:
-                component: commercial
-                importer: custom_fields
-                data:
-                    mail_mug_sent_on:
-                        default: ''
-                        description: ''
-                        name: Sent on
-                        obj_type: entry
-                        options: datetime
-                        required: '0'
-                        tag: EntryDataSubscriptedOn
-                        type: datetime
             template_set:
                 importer: template_set
                 data:
@@ -59,6 +46,10 @@ upgrade_functions:
         plugin: MailMug
         version_limit: 2
         code: $MailMug::MailMug::Upgrade::_install_mail_mug_role
+    migrate_mail_mug_sent_on:
+        plugin: MailMug
+        version_limit: 8
+        code: $MailMug::MailMug::Upgrade::_migrate_mail_mug_sent_on
 
 callbacks:
     MT::App::CMS::cms_post_save.entry:
@@ -68,6 +59,7 @@ callbacks:
     scheduled_post_published: $MailMug::MailMug::Callbacks::_hdlr_scheduled_post_published
     MT::App::CMS::template_param.edit_role: $MailMug::MailMug::Callbacks::_hdlr_append_permissions_to_edit_role
     mail_filter: $MailMug::MailMug::Callbacks::_hdlr_mail_filter_content_transfer_encoding_overwriting
+    MT::App::CMS::template_param.edit_entry: $MailMug::MailMug::Callbacks::_hdlr_append_delivering_field
 
 applications:
     cms:
@@ -113,6 +105,9 @@ content_actions:
 
 object_types:
   mail_mug_subscripter: MailMug::Subscripter
+  entry:
+    mm_allow_delivering: integer default 0
+    mm_sent_on: datetime
 
 task_workers:
   mail_mug:
@@ -128,6 +123,9 @@ config_settings:
         updatable: 1
 
 settings:
+  enable:
+    default: 0
+    scope: blog
   mail_format:
     default: default
     scope: blog

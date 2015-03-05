@@ -23,6 +23,8 @@ our %Lexicon = (
     'Existing users will not be overwritten.' => '既存のユーザー情報は上書きされません。',
     'Import E-mail magazine subscribers to this website' => 'このウェブサイトにメルマガ購読者をインポート',
     'Import E-mail magazine subscribers to this blog' => 'このブログにメルマガ購読者をインポート',
+    'Allow Delivering' => '配信を許可',
+    'Deliverd at [_1]' => '[_1] 配信済み',
 );
 
 1;

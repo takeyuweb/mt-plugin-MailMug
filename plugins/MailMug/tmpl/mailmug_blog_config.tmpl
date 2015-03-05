@@ -1,4 +1,13 @@
 <mtapp:setting
+        id="enable"
+        show_hint="0">
+    <label>
+        <input type="checkbox" name="enable" value="1"<mt:If name="enable"> checked="checked"</mt:If> />
+        <input type="hidden" name="enable" value="" />
+        Enabled on this blog.
+    </label>
+</mtapp:setting>
+<mtapp:setting
         id="mail_format"
         label="<__trans phrase='Mail Format'>"
         show_hint="0">

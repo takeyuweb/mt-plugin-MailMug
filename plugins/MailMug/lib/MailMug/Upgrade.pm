@@ -19,4 +19,33 @@ sub _install_mail_mug_role {
   1;
 }
 
+sub _migrate_mail_mug_sent_on {
+  my $upgrader = shift;
+  my $app = $upgrader->app;
+  my $plugin = MT->component( 'MailMug' );
+
+  $upgrader->progress( $plugin->translate( 'Migrating the E-mail magazine.' ) );
+
+  my %terms = (
+    class => 'entry',
+  );
+  my %args = (
+    'join' => [
+      MT->model( 'entry' )->meta_pkg,
+      'entry_id',
+      { type => 'field.mail_mug_sent_on' },
+      {}
+    ]
+  );
+  my $iter = MT->model( 'entry' )->load_iter( \%terms, \%args );
+  while ( my $entry = $iter->() ) {
+    if ( my $date = $entry->meta('field.mail_mug_sent_on') ) {
+      $entry->mm_sent_on( $date );
+      $entry->mm_allow_delivering( 1 );
+      $entry->save or die $entry->errstr;
+    }
+  }
+  1;
+}
+
 1;

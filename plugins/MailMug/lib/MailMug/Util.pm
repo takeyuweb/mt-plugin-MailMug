@@ -3,28 +3,42 @@ use strict;
 use warnings;
 require Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT_OK = qw( check_for_sending generate_key get_roles find_by_sql build_mail csv );
+our @EXPORT_OK = qw( check_for_sending mail_mug_enabled generate_key get_roles find_by_sql build_mail csv );
 
 sub check_for_sending {
   my ( $entry, $orig_entry ) = @_;
   if ( $entry->class ne 'entry' ) {
     return 0;
   }
+  unless ( mail_mug_enabled( $entry->blog ) ) {
+    return 0;
+  }
   require MT::Entry;
   if ( $entry->status == MT::Entry::RELEASE() ) {
-    my $sent_on = $entry->meta( 'field.mail_mug_sent_on' );
-    if ( $sent_on ) {
+    my $sent_on = $entry->mm_sent_on;
+    if ( $sent_on && $sent_on > 0 ) {
         return 0;
     }
-    if ( defined $orig_entry ) {
-      if ( $orig_entry != MT::Entry::RELEASE ) {
+    if ( $entry->mm_allow_delivering ) {
         return 1;
-      }
-    } else {
-      return 1;
     }
   }
   return 0;
+}
+
+sub mail_mug_enabled {
+  my ( $blog ) = @_;
+  my $scope = "blog:@{[ $blog->id ]}";
+  my $plugin = MT->component( 'MailMug' );
+  my $enable = $plugin->get_config_value( 'enable', $scope );
+  if ( ref( $enable ) && ref( $enable ) eq 'ARRAY' ) {
+    $enable = $enable->[0];
+  }
+  if ( $enable == 1 ) {
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
 my @KEY_LETTERS = ('a'..'z', 'A'..'Z', 0..9);
