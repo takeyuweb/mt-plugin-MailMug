@@ -1,7 +1,7 @@
 # Project modules
 package 'perl-MIME-tools'
 
-%w(Email::Sender::Transport::SMTPS).each do |pkg|
+%w(Email::Sender::Transport::SMTPS Text::CSV_XS).each do |pkg|
   cpan_client pkg do
     user 'root'
     group 'root'

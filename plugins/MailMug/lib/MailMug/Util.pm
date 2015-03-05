@@ -3,7 +3,7 @@ use strict;
 use warnings;
 require Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT_OK = qw( check_for_sending generate_key get_roles find_by_sql build_mail );
+our @EXPORT_OK = qw( check_for_sending generate_key get_roles find_by_sql build_mail csv );
 
 sub check_for_sending {
   my ( $entry, $orig_entry ) = @_;
@@ -205,6 +205,17 @@ sub _cut_attachments {
         last if $count > 1;
     }
     return \%map_attachment;
+}
+
+sub csv {
+    eval { require Text::CSV_XS };
+    unless ( $@ ){
+        Text::CSV_XS->new ( { binary => 1 } );
+    }else{
+        eval { require Text::CSV };
+        die "Neither Text::CSV_XS nor Text::CSV is available" if $@;
+        Text::CSV->new ( { binary => 1 } );
+    }
 }
 
 1;

@@ -1,0 +1,21 @@
+<mt:include name="dialog/header.tmpl" />
+
+<p><__trans phrase="Imported the [_1] record. (Of which [_2] number Skip)" params="<$mt:getvar name='total' _default='0' escape='html'$>%%<$mt:getvar name='skipped' _default='0' escape='html'$>" /></p>
+
+<mt:setvarblock name="action_buttons">
+    <a href="<$mt:var name='script_url'$>?__mode=list&_type=member&blog_id=<$mt:var name='blog_id'$>"
+       title="<__trans phrase='Check the member list.'>(s)"
+       class="send action primary button">
+        <__trans phrase="Check the list of subscripters." />
+    </a>
+    <button type="submit"
+            accesskey="x"
+            title="<__trans phrase='Close (x)'>"
+            class="cancel action button mt-close-dialog">
+        <__trans phrase="Close">
+    </button>
+</mt:setvarblock>
+
+<mt:include name="include/actions_bar.tmpl" bar_position="bottom" hide_pager="1" settings_bar="1" />
+
+<mt:include name="dialog/footer.tmpl" />

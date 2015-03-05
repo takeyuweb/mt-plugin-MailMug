@@ -13,6 +13,13 @@ our %Lexicon = (
     'Subscribe to e-mail magazine.' => 'メールマガジン購読者',
     'Installing a subscriber role...' => 'メールマガジン購読者ロールをインストールしています...',
     'Sent on' => '送信済み',
+    "Imported user's default role" => 'インポートされたユーザのロール',
+    'Import E-mail magazine subscribers' => 'メルマガ購読者インポート',
+    'Start the import.' => 'インポートを開始します。',
+    'Please do not do during other operations.' => '完了するまで他の操作を行わないで下さい。',
+    'Importing ... (already completed up to [_1])' => 'インポートしています…（[_1]件目まで完了済み）',
+    'Imported the [_1] record. (Of which [_2] number Skip)' => '[_1]件のレコードをインポートしました。（うち[_2]件をスキップ）',
+    'Check the list of subscripters.' => '購読者の一覧を確認する',
 );
 
 1;

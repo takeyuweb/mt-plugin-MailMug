@@ -1,7 +1,7 @@
 id: MailMug
 key: MailMug
 name: MailMug
-version: 0.1
+version: 0.2
 schema_version: 7
 l10n_class: MailMug::L10N
 
@@ -69,6 +69,24 @@ callbacks:
     MT::App::CMS::template_param.edit_role: $MailMug::MailMug::Callbacks::_hdlr_append_permissions_to_edit_role
     mail_filter: $MailMug::MailMug::Callbacks::_hdlr_mail_filter_content_transfer_encoding_overwriting
 
+applications:
+    cms:
+        menus:
+            tools:import_subscripters:
+                label: Import E-mail magazine subscribers
+                order: 500
+                view:
+                    - website
+                    - blog
+                mode: start_import_subscripters
+                dialog: 1
+                permission: manage_users
+        methods:
+            start_import_subscripters: $MailMug::MailMug::CMS::start_import_subscripters
+            import_subscripters: $MailMug::MailMug::CMS::import_subscripters
+            complete_import_subscripters: $MailMug::MailMug::CMS::complete_import_subscripters
+
+
 object_types:
   mail_mug_subscripter: MailMug::Subscripter
 
@@ -77,6 +95,7 @@ task_workers:
     label: MailMug
     class: MailMug::Worker
 
+system_config_template: mailmug_config.tmpl
 blog_config_template: mailmug_blog_config.tmpl
 
 settings:
@@ -92,3 +111,6 @@ settings:
   return_path:
     default:
     scope: blog
+  imported_user_role:
+    default:
+    scope: system
