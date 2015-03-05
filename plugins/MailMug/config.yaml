@@ -5,7 +5,7 @@ author_name: Yuichi Takeuchi
 author_link: http://takeyu-web.com/
 doc_link: https://github.com/takeyuweb/mt-plugin-MailMug/
 description: <__trans phrase="__PLUGIN_DESCRIPTION__">
-version: 0.5
+version: 0.7
 schema_version: 8
 l10n_class: MailMug::L10N
 
@@ -134,6 +134,9 @@ blog_config_template: mailmug_blog_config.tmpl
 
 config_settings:
     SubscribersPerImport:
+        default: 100
+        updatable: 1
+    SubscribersPerWorker:
         default: 100
         updatable: 1
 

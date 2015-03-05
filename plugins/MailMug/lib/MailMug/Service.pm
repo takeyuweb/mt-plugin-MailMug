@@ -29,7 +29,7 @@ SQL
     my @count_results = find_by_sql( $count_sql, \@count_values );
     my $count = $count_results[0]->{ 'cnt' };
 
-    my $limit = 100;
+    my $limit = MT->config->SubscribersPerWorker;
     my $total_page = $count / $limit;
     if ( ( $total_page - floor($total_page) ) > 0 ) {
       $total_page = floor($total_page) + 1;
