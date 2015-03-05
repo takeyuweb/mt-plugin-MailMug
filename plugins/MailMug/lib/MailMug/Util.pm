@@ -4,6 +4,7 @@ use warnings;
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT_OK = qw( check_for_sending mail_mug_enabled generate_key get_roles find_by_sql build_mail csv );
+use MT::Util qw( decode_url );
 
 sub check_for_sending {
   my ( $entry, $orig_entry ) = @_;
@@ -212,7 +213,7 @@ sub _cut_attachments {
     my $count = 0;
     require File::Spec;
     while ( $$ref_html =~ s/src="$blog_url([^"]+)"/src="cid:$count\@$host"/ ) {
-        my $rel_path = $1;
+        my $rel_path = decode_url($1);
         my $abs_path = File::Spec->catfile( $entry->blog->site_path, $rel_path );
         $map_attachment{ "$count\@$host" } = $abs_path;
         $count++;
