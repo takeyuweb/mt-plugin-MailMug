@@ -1,7 +1,11 @@
 id: MailMug
 key: MailMug
 name: MailMug
-version: 0.3
+author_name: Yuichi Takeuchi
+author_link: http://takeyu-web.com/
+doc_link: https://github.com/takeyuweb/mt-plugin-MailMug/
+description: <__trans phrase="__PLUGIN_DESCRIPTION__">
+version: 0.4
 schema_version: 8
 l10n_class: MailMug::L10N
 

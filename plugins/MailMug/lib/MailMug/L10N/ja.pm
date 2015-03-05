@@ -25,6 +25,8 @@ our %Lexicon = (
     'Import E-mail magazine subscribers to this blog' => 'このブログにメルマガ購読者をインポート',
     'Allow Delivering' => '配信を許可',
     'Deliverd at [_1]' => '[_1] 配信済み',
+    'Enabled on this blog' => 'このブログで有効',
+    '__PLUGIN_DESCRIPTION__' => 'メールマガジンを配信管理できるようになります。',
 );
 
 1;
