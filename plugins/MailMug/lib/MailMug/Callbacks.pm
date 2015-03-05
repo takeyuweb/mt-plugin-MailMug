@@ -87,6 +87,11 @@ sub _hdlr_append_delivering_field {
   <input type="hidden" name="mm_sent_on" value="<$mt:getvar name='mm_sent_on' escape='html'$>">
 </mt:If>
 </__trans_section>
+<mt:Unless name="mail_mug_enabled">
+<style type="text/css">
+#mail_magazine { display: none; }
+</style>
+</mt:Unless>
 TMPL
   my $block_node = $tmpl->createElement(
     'app:widget',
@@ -103,23 +108,8 @@ TMPL
     $param->{ mm_allow_delivering } = $app->param( 'mm_allow_delivering' );
   }
 
-  unless ( mail_mug_enabled( $blog ) ) {
-    my $html_head_node = @{ $tmpl->getElementsByName( 'html_head' ) }[0];
-    my $style = <<'STYLE';
-<style type="text/css">
-#mail_magazine { display: none; }
-</style>
-STYLE
-    my $style_node = $tmpl->createElement(
-        'setvarblock',
-        {
-          id => 'mail_magazine',
-          name => 'html_head',
-          append => '1'
-        }
-    );
-    $style_node->innerHTML( $style );
-    $tmpl->insertAfter($style_node, $html_head_node);
+  if ( mail_mug_enabled( $blog ) ) {
+    $param->{ mail_mug_enabled } = 1;
   }
   1;
 }
