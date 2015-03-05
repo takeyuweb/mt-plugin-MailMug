@@ -80,7 +80,7 @@ sub import_subscripters {
 
         my $cursor = 0;
         my $from = $app->param( 'from' ) || 0;
-        my $to = $from + 10;
+        my $to = $from + MT->config->SubscribersPerImport;
         my $finished = 0;
         my $skipped = $app->param( 'skipped' ) || 0;
 

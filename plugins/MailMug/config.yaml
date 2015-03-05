@@ -122,6 +122,11 @@ task_workers:
 system_config_template: mailmug_config.tmpl
 blog_config_template: mailmug_blog_config.tmpl
 
+config_settings:
+    SubscribersPerImport:
+        default: 100
+        updatable: 1
+
 settings:
   mail_format:
     default: default
