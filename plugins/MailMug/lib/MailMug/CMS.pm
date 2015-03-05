@@ -5,7 +5,7 @@ use MT;
 use File::Temp qw( tempfile );
 use File::Basename;
 use File::Spec;
-use MT::Util;
+use MT::Util qw( is_valid_email );
 
 sub _check_perms_to_importing {
     my ( $app, $blog, $user ) = @_;
@@ -80,7 +80,7 @@ sub import_subscripters {
 
         my $cursor = 0;
         my $from = $app->param( 'from' ) || 0;
-        my $to = $from + 100;
+        my $to = $from + 10;
         my $finished = 0;
         my $skipped = $app->param( 'skipped' ) || 0;
 
@@ -92,6 +92,7 @@ sub import_subscripters {
                 last;
             }
             my $email = $_;
+            chomp $email;
             if ( $cursor >= $from ) {
                 unless ( _import_user( $blog, $email ) ) {
                     $skipped++;
@@ -134,6 +135,7 @@ sub import_subscripters {
 
 sub _import_user {
     my ( $blog, $email ) = @_;
+    return unless is_valid_email( $email );
     my $role = _get_role();
     my $user = MT->model( 'author' )->load( {
         type      => MT->model( 'author' )->AUTHOR(),
@@ -180,7 +182,8 @@ sub complete_import_subscripters {
 
     my %params = (
         blog_id => $blog->id,
-        total => $app->param( 'total' )
+        total   => $app->param( 'total' ),
+        skipped => $app->param( 'skipped' ),
     );
     $app->build_page('complete_import_subscripters.tmpl', \%params);
 }
