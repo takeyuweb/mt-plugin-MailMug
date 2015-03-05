@@ -86,6 +86,30 @@ applications:
             import_subscripters: $MailMug::MailMug::CMS::import_subscripters
             complete_import_subscripters: $MailMug::MailMug::CMS::complete_import_subscripters
 
+content_actions:
+    member:
+        import_subscripters_blog:
+            class: icon-create
+            label: Import E-mail magazine subscribers to this blog
+            mode: start_import_subscripters
+            dialog: 1
+            order: 100
+            condition: |
+              sub {
+                  my $app = MT->instance;
+                  $app->blog->is_blog;
+              }
+        import_subscripters_website:
+            class: icon-create
+            label: Import E-mail magazine subscribers to this website
+            mode: start_import_subscripters
+            dialog: 1
+            order: 100
+            condition: |
+              sub {
+                  my $app = MT->instance;
+                  !$app->blog->is_blog;
+              }
 
 object_types:
   mail_mug_subscripter: MailMug::Subscripter

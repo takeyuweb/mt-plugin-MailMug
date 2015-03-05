@@ -21,6 +21,8 @@ our %Lexicon = (
     'Imported the [_1] record. (Of which [_2] number Skip)' => '[_1]件のレコードをインポートしました。（うち[_2]件をスキップ）',
     'Check the list of subscripters.' => '購読者の一覧を確認する',
     'Existing users will not be overwritten.' => '既存のユーザー情報は上書きされません。',
+    'Import E-mail magazine subscribers to this website' => 'このウェブサイトにメルマガ購読者をインポート',
+    'Import E-mail magazine subscribers to this blog' => 'このブログにメルマガ購読者をインポート',
 );
 
 1;
