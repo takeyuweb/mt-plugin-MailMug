@@ -135,7 +135,19 @@ sub import_subscripters {
 
 sub _import_user {
     my ( $blog, $email ) = @_;
-    return unless is_valid_email( $email );
+    unless ( is_valid_email( $email ) ) {
+        my $app = MT->instance;
+        my $author = $app->user;
+        require MT::Log;
+        MT->log({
+            message => MT->translate( 'Invalid email address: [_1]', $email ),
+            blog_id => $blog->id,
+            lebel   => MT::Log::ERROR(),
+            ip      => $app->remote_ip,
+            $author ? ( author_id => $author->id ) : (),
+        });
+        return;
+    }
     my $role = _get_role();
     my $user = MT->model( 'author' )->load( {
         type      => MT->model( 'author' )->AUTHOR(),
