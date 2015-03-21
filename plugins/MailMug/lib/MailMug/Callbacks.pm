@@ -53,7 +53,7 @@ MTML
   $tmpl->insertAfter( $node, $pointer );
 }
 
-sub _hdlr_mail_filter_content_transfer_encoding_overwriting {
+sub _hdlr_mail_filter_overwriting {
   my $cb = shift;
   my %params = @_;
   # args     => $hdrs_arg,
@@ -65,6 +65,7 @@ sub _hdlr_mail_filter_content_transfer_encoding_overwriting {
     if ( $params{ args }->{ 'Content-Transfer-Encoding' } ) {
       $params{ headers }->{ 'Content-Transfer-Encoding' } = $params{ args }->{ 'Content-Transfer-Encoding' };
     }
+    $params{ headers }->{ 'X-Mailer' } = 'MailMug';
   }
   1;
 }

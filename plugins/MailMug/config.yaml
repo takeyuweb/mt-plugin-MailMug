@@ -63,7 +63,7 @@ callbacks:
     scheduled_post_published: $MailMug::MailMug::Callbacks::_hdlr_scheduled_post_published
     MT::App::CMS::template_param.edit_role: $MailMug::MailMug::Callbacks::_hdlr_append_permissions_to_edit_role
     mail_filter:
-        - handler: $MailMug::MailMug::Callbacks::_hdlr_mail_filter_content_transfer_encoding_overwriting
+        - handler: $MailMug::MailMug::Callbacks::_hdlr_mail_filter_overwriting
         - handler: $MailMug::MailMug::Callbacks::_hdlr_mail_filter_sending_intercept
           priority: 10
     MT::App::CMS::template_param.edit_entry: $MailMug::MailMug::Callbacks::_hdlr_append_delivering_field
