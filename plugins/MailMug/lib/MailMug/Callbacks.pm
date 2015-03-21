@@ -114,4 +114,28 @@ TMPL
   1;
 }
 
+sub _hdlr_mail_filter_sending_intercept {
+  my $cb = shift;
+  my %params = @_;
+  # args     => $hdrs_arg,
+  # headers  => \%hdrs,
+  # body     => \$body,
+  # transfer => \$xfer,
+  # ( $id ? ( id => $id ) : () )
+  if ( $params{ id } && $params{ id } eq 'mail_mug' ) {
+    my $plugin = MT->component( 'MailMug' );
+    my $mail_mug_smtp = $plugin->get_config_value( 'mail_mug_smtp', 'system' );
+    if ( $mail_mug_smtp ) {
+      require MailMug::Mailer;
+      require MailMug::ConfigMgr;
+      my $ref_hdrs = $params{ headers };
+      my $ref_body = $params{ body };
+      my $mgr = MailMug::ConfigMgr->instance;
+      MailMug::Mailer->_send_mt_smtp( $ref_hdrs, $$ref_body, $mgr );
+      return 0;
+    }
+  }
+  1;
+}
+
 1;

@@ -5,7 +5,7 @@ author_name: Yuichi Takeuchi
 author_link: http://takeyu-web.com/
 doc_link: https://github.com/takeyuweb/mt-plugin-MailMug/
 description: <__trans phrase="__PLUGIN_DESCRIPTION__">
-version: 0.8
+version: 0.9
 schema_version: 8
 l10n_class: MailMug::L10N
 
@@ -62,7 +62,10 @@ callbacks:
     MT::App::CMS::cms_post_bulk_save.entries: $MailMug::MailMug::Callbacks::_hdlr_cms_post_bulk_save_entries
     scheduled_post_published: $MailMug::MailMug::Callbacks::_hdlr_scheduled_post_published
     MT::App::CMS::template_param.edit_role: $MailMug::MailMug::Callbacks::_hdlr_append_permissions_to_edit_role
-    mail_filter: $MailMug::MailMug::Callbacks::_hdlr_mail_filter_content_transfer_encoding_overwriting
+    mail_filter:
+        - handler: $MailMug::MailMug::Callbacks::_hdlr_mail_filter_content_transfer_encoding_overwriting
+        - handler: $MailMug::MailMug::Callbacks::_hdlr_mail_filter_sending_intercept
+          priority: 10
     MT::App::CMS::template_param.edit_entry: $MailMug::MailMug::Callbacks::_hdlr_append_delivering_field
 
 applications:
@@ -158,4 +161,25 @@ settings:
     scope: blog
   imported_user_role:
     default:
+    scope: system
+  mail_mug_smtp:
+    default: 0
+    scope: system
+  smtp_server:
+    default:
+    scope: system
+  smtp_user:
+    default:
+    scope: system
+  smtp_password:
+    default:
+    scope: system
+  smtp_port:
+    default:
+    scope: system
+  smtp_auth:
+    default: 0
+    scope: system
+  smtp_timeout:
+    default: 10
     scope: system

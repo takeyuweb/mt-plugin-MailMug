@@ -5,3 +5,64 @@
         show_hint="1">
     <input type="text" name="imported_user_role" value="<$mt:getvar name='imported_user_role' escape='html'$>">
 </mtapp:setting>
+
+<mtapp:setting
+        id="mail_mug_smtp"
+        show_hint="0">
+    <label>
+        <input type="checkbox" name="mail_mug_smtp" value="1"<mt:If name="mail_mug_smtp"> checked="checked"</mt:If> />
+        <input type="hidden" name="mail_mug_smtp" value="" />
+        <__trans phrase="Uses the SMTP server dedicated to E-mail magazine sending.">
+    </label>
+</mtapp:setting>
+<mtapp:setting
+        id="smtp_server"
+        label="<__trans phrase='SMTP Server'>"
+        show_hint="0">
+    <input type="text" name="smtp_server" class="text" value="<$mt:var name='smtp_server'$>" />
+</mtapp:setting>
+<mtapp:setting
+        id="smtp_auth"
+        label="<__trans phrase='SMTP Auth'>"
+        show_hint="0">
+    <label>
+        <input type="radio" name="smtp_auth" value="0"<mt:If name='smtp_auth' eq='0'> checked="checked"</mt:If>>
+        Disable
+    </label>
+    <label>
+        <input type="radio" name="smtp_auth" value="1"<mt:If name='smtp_auth' eq='1'> checked="checked"</mt:If>>
+        Enable
+    </label>
+    <label>
+        <input type="radio" name="smtp_auth" value="ssl"<mt:If name='smtp_auth' eq='ssl'> checked="checked"</mt:If>>
+        Enable (SSL/TLS)
+    </label>
+    <label>
+        <input type="radio" name="smtp_auth" value="starttls"<mt:If name='smtp_auth' eq='starttls'> checked="checked"</mt:If>>
+        Enable (STARTTLS)
+    </label>
+</mtapp:setting>
+<mtapp:setting
+        id="smtp_user"
+        label="<__trans phrase='SMTP User'>"
+        show_hint="0">
+    <input type="text" name="smtp_user" class="text" value="<$mt:var name='smtp_user'$>" />
+</mtapp:setting>
+<mtapp:setting
+        id="smtp_password"
+        label="<__trans phrase='SMTP Password'>"
+        show_hint="0">
+    <input type="password" name="smtp_password" class="text" value="<$mt:var name='smtp_password'$>" />
+</mtapp:setting>
+<mtapp:setting
+        id="smtp_port"
+        label="<__trans phrase='SMTP Port'>"
+        show_hint="0">
+    <input type="text" name="smtp_port" class="text" value="<$mt:var name='smtp_port'$>" size="10" />
+</mtapp:setting>
+<mtapp:setting
+        id="smtp_timeout"
+        label="<__trans phrase='SMTP Timeout'>"
+        show_hint="0">
+    <input type="text" name="smtp_timeout" class="text" value="<$mt:var name='smtp_timeout'$>" size="10" />
+</mtapp:setting>
