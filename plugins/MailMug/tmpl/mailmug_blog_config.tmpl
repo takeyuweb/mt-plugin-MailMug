@@ -38,6 +38,12 @@
     </label>
 </mtapp:setting>
 <mtapp:setting
+        id="from"
+        label="<__trans phrase='From'>"
+        show_hint="0">
+    <input type="text" name="from" value="<$mt:getvar name='from' escape='html'$>">
+</mtapp:setting>
+<mtapp:setting
         id="reply_to"
         label="<__trans phrase='Reply-To'>"
         show_hint="0">

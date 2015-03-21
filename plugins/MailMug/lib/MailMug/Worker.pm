@@ -34,7 +34,8 @@ sub _process {
     require Encode;
     my $subject = Encode::decode_utf8( MIME::Base64::decode_base64( $mail->{ subject_base64 } ) );
     my $cfg = MT->config;
-    my $from_addr = $cfg->EmailAddressMain;
+    my $from_addr = $plugin->get_config_value( 'from', "blog:@{[ $arg->{ blog_id } ]}" ) ||
+        $cfg->EmailAddressMain;
     my $reply_to =
         $plugin->get_config_value( 'reply_to', "blog:@{[ $arg->{ blog_id } ]}" ) ||
         $cfg->EmailReplyTo ||

@@ -5,7 +5,7 @@ author_name: Yuichi Takeuchi
 author_link: http://takeyu-web.com/
 doc_link: https://github.com/takeyuweb/mt-plugin-MailMug/
 description: <__trans phrase="__PLUGIN_DESCRIPTION__">
-version: 0.9
+version: 0.10
 schema_version: 8
 l10n_class: MailMug::L10N
 
@@ -152,6 +152,9 @@ settings:
     scope: blog
   mail_encoding:
     default: utf-8
+    scope: blog
+  from:
+    default:
     scope: blog
   reply_to:
     default:
