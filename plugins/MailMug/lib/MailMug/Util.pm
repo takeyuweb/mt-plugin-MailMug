@@ -3,7 +3,8 @@ use strict;
 use warnings;
 require Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT_OK = qw( check_for_sending mail_mug_enabled generate_key get_roles find_by_sql build_mail csv );
+our @EXPORT_OK = qw( check_for_sending mail_mug_enabled generate_key get_roles find_by_sql build_mail csv
+                     create_subscriber );
 use MT::Util qw( decode_url );
 
 sub check_for_sending {
@@ -231,6 +232,27 @@ sub csv {
         die "Neither Text::CSV_XS nor Text::CSV is available" if $@;
         Text::CSV->new ( { binary => 1 } );
     }
+}
+
+sub create_subscriber {
+    my ( $email ) = @_;
+    my $user = MT->model( 'author' )->new;
+    $user->set_defaults();
+    $user->set_values( {
+        name               => $email,
+        nickname           => $email,
+        email              => $email,
+        type               => MT->model( 'author' )->AUTHOR(),
+        status             => MT->model( 'author' )->ACTIVE(),
+        auth_type          => 'MT',
+    } );
+    my @alpha  = ( 'a' .. 'z', 'A' .. 'Z', 0 .. 9 );
+    my $password   = join '', map $alpha[ rand @alpha ], 1 .. 16;
+    $user->set_password( $password );
+    my $basename = MT::Util::make_unique_author_basename( $user );
+    $user->basename( $basename );
+    $user->save or die $user->errstr;
+    return $user;
 }
 
 1;

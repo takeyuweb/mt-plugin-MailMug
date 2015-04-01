@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <title>Registration Form - <$mt:BlogName escape="html"$></title>
+</head>
+<body>
+
+<h1><$mt:BlogName escape="html"$></h1>
+
+<mt:if name="request.invalid_magic">
+    <p style="color: red">Invalid token, Please retry your request.</p>
+</mt:if>
+
+<h2>Add your E-mail address to the List.</h2>
+
+<mt:if name="request.added">
+    <p style="color: blue">Registration success.</p>
+</mt:if>
+<mt:If name="request.__mode" eq="add">
+    <mt:if name="request.invalid">
+        <p style="color: red">Your E-Mail Address is invalid.</p>
+    </mt:if>
+</mt:If>
+<mt:if name="request.banned">
+    <p style="color: red">Your E-Mail Address is being blocked.</p>
+</mt:if>
+
+<form action="<$mt:CGIPath$><$mt:MailMugAppScript$>" method="POST">
+    <input type="hidden" name="__mode" value="add" />
+    <input type="hidden" name="magic_token" value="<$mt:var name='magic_token' escape='html'$>" />
+    <input type="hidden" name="blog_id" value="<$mt:var name='blog_id'$>" />
+    <label>
+        Email Address:
+        <input type="text" name="email" value="" />
+    </label>
+    <input type="submit" value="Submit" />
+</form>
+
+<h2>Remove your E-mail address from the List.</h2>
+
+<mt:if name="request.removed">
+    <p style="color: blue">Unregistration success.</p>
+</mt:if>
+<mt:If name="request.__mode" eq="remove">
+    <mt:if name="request.invalid">
+        <p style="color: red">Your E-Mail Address is invalid.</p>
+    </mt:if>
+</mt:If>
+
+<form action="<$mt:CGIPath$><$mt:MailMugAppScript$>" method="POST">
+    <input type="hidden" name="__mode" value="remove" />
+    <input type="hidden" name="magic_token" value="<$mt:var name='magic_token' escape='html'$>" />
+    <input type="hidden" name="blog_id" value="<$mt:var name='blog_id'$>" />
+    <label>
+        Email Address:
+        <input type="text" name="email" value="" />
+    </label>
+    <input type="submit" value="Submit" />
+</form>
+
+</body>
+</html>

@@ -55,3 +55,10 @@
         show_hint="0">
     <input type="text" name="return_path" value="<$mt:getvar name='return_path' escape='html'$>">
 </mtapp:setting>
+<mtapp:setting
+        id="role_for_form"
+        label="<__trans phrase="Role for subscription form">"
+        hint="The default is '<__trans phrase='E-mail magazine subscribers' />'."
+        show_hint="1">
+    <input type="text" name="role_for_form" value="<$mt:getvar name='role_for_form' escape='html'$>">
+</mtapp:setting>

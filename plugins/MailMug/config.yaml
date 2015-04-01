@@ -5,7 +5,7 @@ author_name: Yuichi Takeuchi
 author_link: http://takeyu-web.com/
 doc_link: https://github.com/takeyuweb/mt-plugin-MailMug/
 description: <__trans phrase="__PLUGIN_DESCRIPTION__">
-version: 0.10
+version: 0.11
 schema_version: 8
 l10n_class: MailMug::L10N
 
@@ -91,6 +91,16 @@ applications:
             start_import_subscripters: $MailMug::MailMug::CMS::start_import_subscripters
             import_subscripters: $MailMug::MailMug::CMS::import_subscripters
             complete_import_subscripters: $MailMug::MailMug::CMS::complete_import_subscripters
+    mail_mug:
+        handler: MailMug::App
+        script: >
+            sub {
+                MT->config->MailMugAppScript;
+            }
+        methods:
+            form: $MailMug::MailMug::App::form
+            add: $MailMug::MailMug::App::add
+            remove: $MailMug::MailMug::App::remove
 
 content_actions:
     member:
@@ -142,6 +152,9 @@ config_settings:
     SubscribersPerWorker:
         default: 100
         updatable: 1
+    MailMugAppScript:
+        default: mail-mug.cgi
+        updatable: 1
 
 settings:
   enable:
@@ -186,3 +199,10 @@ settings:
   smtp_timeout:
     default: 10
     scope: system
+  role_for_form:
+    default:
+    scope: blog
+
+tags:
+  function:
+    MailMugAppScript: $MailMug::MailMug::Tags::hdlr_mail_mug_app_script

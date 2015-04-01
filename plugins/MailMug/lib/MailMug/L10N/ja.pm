@@ -27,6 +27,7 @@ our %Lexicon = (
     'Deliverd at [_1]' => '[_1] 配信済み',
     'Enabled on this blog' => 'このブログで有効',
     '__PLUGIN_DESCRIPTION__' => 'メールマガジンを配信管理できるようになります。',
+    'Role for subscription form' => '購読フォームから登録されたユーザのロール',
 );
 
 1;

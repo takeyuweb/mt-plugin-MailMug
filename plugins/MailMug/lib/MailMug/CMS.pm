@@ -154,23 +154,10 @@ sub _import_user {
         auth_type => 'MT',
         email     => $email
     }, { limit => 1 } );
+
     unless ( defined $user ) {
-        $user = MT->model( 'author' )->new;
-        $user->set_defaults();
-        $user->set_values( {
-            name               => $email,
-            nickname           => $email,
-            email              => $email,
-            type               => MT->model( 'author' )->AUTHOR(),
-            status             => MT->model( 'author' )->ACTIVE(),
-            auth_type          => 'MT',
-        } );
-        my @alpha  = ( 'a' .. 'z', 'A' .. 'Z', 0 .. 9 );
-        my $password   = join '', map $alpha[ rand @alpha ], 1 .. 16;
-        $user->set_password( $password );
-        my $basename = MT::Util::make_unique_author_basename( $user );
-        $user->basename( $basename );
-        $user->save or die $user->errstr;
+        require MailMug::Util;
+        $user = MailMug::Util::create_subscriber( $email );
     }
     MT->model( 'association' )->link( $user => $role => $blog );
 }
