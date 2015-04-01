@@ -36,6 +36,8 @@ themes:
                                 label: Text Body
                             mail_mug_html_body:
                                 label: HTML Body
+                            mail_mug_form:
+                                label: Registraiton Form
 permissions:
     blog.subscribe_mail_mug:
         label: Subscribe to e-mail magazine
