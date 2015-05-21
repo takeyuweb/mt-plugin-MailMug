@@ -73,6 +73,9 @@ sub _hdlr_mail_filter_overwriting {
 sub _hdlr_append_delivering_field {
   my ( $cb, $app, $param, $tmpl ) = @_;
   my $blog = $app->blog or return 1;
+  return 1 if $app->param( '_type' ) eq 'page';
+  return 1 unless MailMug::Util::mail_mug_enabled( $blog );
+
   my $plugin = MT->component( 'MailMug' );
 
   my $host_node = $tmpl->getElementById( 'entry-status-widget' );
@@ -143,9 +146,10 @@ sub _hdlr_mail_filter_sending_intercept {
 sub _hdlr_append_preview {
 my ( $cb, $app, $param, $tmpl ) = @_;
   my $blog = $app->blog or return 1;
+  return 1 if $app->param( '_type' ) eq 'page';
+  return 1 unless MailMug::Util::mail_mug_enabled( $blog );
+
   my $plugin = MT->component( 'MailMug' );
-  return $app->trans_error( 'Invalid request' )
-      unless MailMug::Util::mail_mug_enabled( $blog );
 
   my $permalink_node = $tmpl->getElementById( 'permalink' );
   my $test_button = <<'TMPL';
