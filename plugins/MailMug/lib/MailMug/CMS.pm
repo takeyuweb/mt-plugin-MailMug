@@ -6,6 +6,7 @@ use File::Temp qw( tempfile );
 use File::Basename;
 use File::Spec;
 use MT::Util qw( is_valid_email );
+use MailMug::Util;
 
 sub _check_perms_to_importing {
     my ( $app, $blog, $user ) = @_;
@@ -193,13 +194,15 @@ sub email_testing {
         or return $app->trans_error( 'Invalid request' );
     my $blog = $app->blog
         or return $app->trans_error( 'Invalid request' );
+    return $app->trans_error( 'Invalid request' )
+        unless MailMug::Util::mail_mug_enabled( $blog );
     my $entry_id = $app->param('entry_id')
         or return $app->error( $app->translate("No entry ID was provided") );
 
     require MT::Promise;
     my $promise = MT::Promise::delay(
         sub {
-            return MT->model( 'entry' )->load( { id => $entry_id, class => 'entry' } ) || undef;
+            return MT->model( 'entry' )->load( { id => $entry_id, blog_id => $blog->id, class => 'entry' } ) || undef;
         }
     );
     return $app->permission_denied()
@@ -211,7 +214,6 @@ sub email_testing {
         entry_id => $entry_id,
         doing => ( $app->mode eq 'do_email_testing' ? 1 : 0)
     );
-    require MailMug::Util;
     MailMug::Util::build_page( 'email_testing', { entry => $entry }, \%params );
 }
 
@@ -221,6 +223,8 @@ sub do_email_testing {
         or return $app->trans_error( 'Invalid request' );
     my $blog = $app->blog
         or return $app->trans_error( 'Invalid request' );
+    return $app->trans_error( 'Invalid request' )
+        unless MailMug::Util::mail_mug_enabled( $blog );
     my $entry_id = $app->param('entry_id')
         or return $app->error( $app->translate("No entry ID was provided") );
     return $app->errtrans( "Invalid request." )
@@ -241,7 +245,6 @@ sub do_email_testing {
     @recipients = grep { is_valid_email( $_ ) } @recipients;
     return email_testing( $app ) unless ( @recipients );
 
-    require MailMug::Util;
     my $mail = MailMug::Util::build_mail( $entry );
 
     require MIME::Base64;

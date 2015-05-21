@@ -144,6 +144,8 @@ sub _hdlr_append_preview {
 my ( $cb, $app, $param, $tmpl ) = @_;
   my $blog = $app->blog or return 1;
   my $plugin = MT->component( 'MailMug' );
+  return $app->trans_error( 'Invalid request' )
+      unless MailMug::Util::mail_mug_enabled( $blog );
 
   my $permalink_node = $tmpl->getElementById( 'permalink' );
   my $test_button = <<'TMPL';
