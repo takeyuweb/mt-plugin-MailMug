@@ -247,41 +247,9 @@ sub do_email_testing {
 
     my $mail = MailMug::Util::build_mail( $entry );
 
-    require MIME::Base64;
-    require Encode;
-    my $subject = Encode::decode_utf8( MIME::Base64::decode_base64( $mail->{ subject_base64 } ) );
-    my $plugin = MT->component( 'MailMug' );
-    my $cfg = MT->config;
-    my $from_addr = $plugin->get_config_value( 'from', "blog:@{[ $blog->id ]}" ) ||
-        $cfg->EmailAddressMain;
-    my $reply_to =
-        $plugin->get_config_value( 'reply_to', "blog:@{[ $blog->id ]}" ) ||
-        $cfg->EmailReplyTo ||
-        $cfg->EmailAddressMain;
-    my $return_path =
-        $plugin->get_config_value( 'return_path', "blog:@{[ $blog->id ]}" ) ||
-        $from_addr;
-    $from_addr = undef if $from_addr && !is_valid_email( $from_addr );
-    $reply_to  = undef if $reply_to  && !is_valid_email( $reply_to );
-    $return_path  = undef if $return_path  && !is_valid_email( $return_path );
-
     foreach my $recipient ( @recipients ) {
         my $mail_mug_id = $entry->id . '-test';
-        my %header = ( id => 'mail_mug',
-                       $from_addr ? ( From       => $from_addr ) : (),
-                       $reply_to  ? ( 'Reply-To' => $reply_to )  : (),
-                       $return_path ? ( 'Return-Path' => $return_path ) : (),
-                       'X-MailMug-ID' => $mail_mug_id,
-                       To => $recipient,
-                       Subject => $subject,
-                       'Content-Type' => $mail->{ content_type },
-                       'Content-Transfer-Encoding' => $mail->{ content_transfer_encoding }
-        );
-        my $body = $mail->{ body };
-
-        require MailMug::Mailer;
-        MailMug::Mailer->send( \%header, $body )
-            or die MailMug::Mailer->errstr;
+        MailMug::Util::send_mail( $mail, { to => $recipient, mail_mug_id => $mail_mug_id } );
     }
 
     $app->build_page( 'email_testing_completed.tmpl', { recipients => \@recipients } );

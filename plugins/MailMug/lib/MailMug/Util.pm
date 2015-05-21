@@ -5,7 +5,7 @@ require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT_OK = qw( check_for_sending mail_mug_enabled generate_key get_roles find_by_sql build_mail csv
                      create_subscriber );
-use MT::Util qw( decode_url );
+use MT::Util qw( decode_url is_valid_email );
 
 sub check_for_sending {
   my ( $entry, $orig_entry ) = @_;
@@ -179,7 +179,11 @@ sub build_mail {
         subject_base64 => $encoded_subject,    # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース
         content_type => $content_type,
         content_transfer_encoding => $content_transfer_encoding,
-        body => $body
+        body => $body,
+        entry => {
+            id => $entry->id,
+            blog_id => $entry->blog_id
+        }
     );
     return \%mail;
 }
@@ -284,5 +288,45 @@ sub build_page {
     return $app->build_page( $tmpl, $param );
 }
 
+sub send_mail {
+    my ( $mail, $opts ) = @_;
+
+    my $recipient = $opts->{ to } or return;
+    my $mail_mug_id = $opts->{ mail_mug_id };
+    my $blog_id = $mail->{ entry }->{ blog_id } or return;
+
+    require MIME::Base64;
+    require Encode;
+    my $subject = Encode::decode_utf8( MIME::Base64::decode_base64( $mail->{ subject_base64 } ) );
+    my $plugin = MT->component( 'MailMug' );
+    my $cfg = MT->config;
+    my $from_addr = $plugin->get_config_value( 'from', "blog:@{[ $blog_id ]}" ) ||
+        $cfg->EmailAddressMain;
+    my $reply_to =
+        $plugin->get_config_value( 'reply_to', "blog:@{[ $blog_id ]}" ) ||
+        $cfg->EmailReplyTo ||
+        $cfg->EmailAddressMain;
+    my $return_path =
+        $plugin->get_config_value( 'return_path', "blog:@{[ $blog_id ]}" ) ||
+        $from_addr;
+    $from_addr = undef if $from_addr && !is_valid_email( $from_addr );
+    $reply_to  = undef if $reply_to  && !is_valid_email( $reply_to );
+    $return_path  = undef if $return_path  && !is_valid_email( $return_path );
+
+    my %header = ( id => 'mail_mug',
+                   $from_addr ? ( From       => $from_addr ) : (),
+                   $reply_to  ? ( 'Reply-To' => $reply_to )  : (),
+                   $return_path ? ( 'Return-Path' => $return_path ) : (),
+                   $mail_mug_id ? ( 'X-MailMug-ID' => $mail_mug_id ) : (),
+                   To => $recipient,
+                   Subject => $subject,
+                   'Content-Type' => $mail->{ content_type },
+                   'Content-Transfer-Encoding' => $mail->{ content_transfer_encoding }
+    );
+
+    require MailMug::Mailer;
+    MailMug::Mailer->send( \%header, $mail->{ body } )
+        or die MailMug::Mailer->errstr;
+}
 
 1;
