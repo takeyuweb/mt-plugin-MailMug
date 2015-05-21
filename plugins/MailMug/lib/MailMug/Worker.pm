@@ -5,6 +5,7 @@ use base qw( TheSchwartz::Worker );
 use MT;
 use MT::Util qw( is_valid_email );
 use MailMug::Mailer;
+use MailMug::Util;
 
 sub grab_for { 60 * 10 }
 sub retry_delay { 30 }
