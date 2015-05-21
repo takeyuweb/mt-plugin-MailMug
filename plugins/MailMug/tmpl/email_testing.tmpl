@@ -1,0 +1,49 @@
+<mt:var name="screen_id" value="email-testing">
+<mt:setvarblock name="page_title"><__trans phrase="Send Test Email"></mt:setvarblock>
+<mt:setvarblock name="action_buttons">
+    <button
+            type="submit"
+            accesskey="s"
+            title="<__trans phrase="Send (s)">"
+            class="send action primary button">
+        <__trans phrase="Send">
+    </button>
+    <button
+            type="submit"
+            accesskey="x"
+            title="<__trans phrase="Cancel (x)">"
+            class="cancel action button mt-close-dialog">
+        <__trans phrase="Cancel">
+    </button>
+</mt:setvarblock>
+
+<mt:include name="dialog/header.tmpl" />
+
+<mt:if name="doing">
+  <mtapp:statusmsg
+     id="doing"
+     class="error">
+    <__trans phrase="Please enter recipients.">
+  </mtapp:statusmsg>
+</mt:if>
+
+<form action="<$MTVar name='script_url'$>" method="POST">
+    <input type="hidden" name="__mode" value="do_email_testing" />
+    <input type="hidden" name="magic_token" value="<mt:var name="magic_token">" />
+    <input type="hidden" name="blog_id" value="<$MTVar name='blog_id'$>" />
+    <input type="hidden" name="entry_id" value="<$MTVar name='entry_id'$>" />
+
+    <mtapp:setting
+       id="description"
+       label_class="top-label"
+       label="<__trans phrase="Recipients">"
+       show_hint="1"
+       hint="<__trans phrase="Enter e-mail address with a new line-delimited.">">
+      <textarea name="recipients" id="recipients" class="text full high"></textarea>
+    </mtapp:setting>
+
+    <mt:include name="include/actions_bar.tmpl" bar_position="bottom" hide_pager="1" settings_bar="1" />
+</form>
+
+
+<mt:include name="dialog/footer.tmpl" />

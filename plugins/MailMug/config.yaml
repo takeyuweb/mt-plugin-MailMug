@@ -5,7 +5,7 @@ author_name: Yuichi Takeuchi
 author_link: http://takeyu-web.com/
 doc_link: https://github.com/takeyuweb/mt-plugin-MailMug/
 description: <__trans phrase="__PLUGIN_DESCRIPTION__">
-version: 0.11
+version: 0.12b
 schema_version: 8
 l10n_class: MailMug::L10N
 
@@ -68,7 +68,9 @@ callbacks:
         - handler: $MailMug::MailMug::Callbacks::_hdlr_mail_filter_overwriting
         - handler: $MailMug::MailMug::Callbacks::_hdlr_mail_filter_sending_intercept
           priority: 10
-    MT::App::CMS::template_param.edit_entry: $MailMug::MailMug::Callbacks::_hdlr_append_delivering_field
+    MT::App::CMS::template_param.edit_entry:
+        - handler: $MailMug::MailMug::Callbacks::_hdlr_append_delivering_field
+        - handler: $MailMug::MailMug::Callbacks::_hdlr_append_preview
 
 applications:
     cms:
@@ -93,6 +95,8 @@ applications:
             start_import_subscripters: $MailMug::MailMug::CMS::start_import_subscripters
             import_subscripters: $MailMug::MailMug::CMS::import_subscripters
             complete_import_subscripters: $MailMug::MailMug::CMS::complete_import_subscripters
+            email_testing: $MailMug::MailMug::CMS::email_testing
+            do_email_testing: $MailMug::MailMug::CMS::do_email_testing
     mail_mug:
         handler: MailMug::App
         script: >

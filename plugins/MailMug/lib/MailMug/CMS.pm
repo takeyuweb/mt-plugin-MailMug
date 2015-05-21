@@ -187,4 +187,101 @@ sub complete_import_subscripters {
     $app->build_page('complete_import_subscripters.tmpl', \%params);
 }
 
+sub email_testing {
+    my $app = shift;
+    my $user = $app->user
+        or return $app->trans_error( 'Invalid request' );
+    my $blog = $app->blog
+        or return $app->trans_error( 'Invalid request' );
+    my $entry_id = $app->param('entry_id')
+        or return $app->error( $app->translate("No entry ID was provided") );
+
+    require MT::Promise;
+    my $promise = MT::Promise::delay(
+        sub {
+            return MT->model( 'entry' )->load( { id => $entry_id, class => 'entry' } ) || undef;
+        }
+    );
+    return $app->permission_denied()
+        unless $app->run_callbacks( 'cms_view_permission_filter.entry', $app, $entry_id, $promise );
+
+    my $entry = $promise->force;
+
+    my %params = (
+        entry_id => $entry_id,
+        doing => ( $app->mode eq 'do_email_testing' ? 1 : 0)
+    );
+    require MailMug::Util;
+    MailMug::Util::build_page( 'email_testing', { entry => $entry }, \%params );
+}
+
+sub do_email_testing {
+    my $app = shift;
+    my $user = $app->user
+        or return $app->trans_error( 'Invalid request' );
+    my $blog = $app->blog
+        or return $app->trans_error( 'Invalid request' );
+    my $entry_id = $app->param('entry_id')
+        or return $app->error( $app->translate("No entry ID was provided") );
+    return $app->errtrans( "Invalid request." )
+        unless $app->validate_magic();
+
+    require MT::Promise;
+    my $promise = MT::Promise::delay(
+        sub {
+            return MT->model( 'entry' )->load( { id => $entry_id, class => 'entry' } ) || undef;
+        }
+    );
+    return $app->permission_denied()
+        unless $app->run_callbacks( 'cms_view_permission_filter.entry', $app, $entry_id, $promise );
+
+    my $entry = $promise->force;
+
+    my @recipients = split /\r?\n/, $app->param( 'recipients' );
+    @recipients = grep { is_valid_email( $_ ) } @recipients;
+    return email_testing( $app ) unless ( @recipients );
+
+    require MailMug::Util;
+    my $mail = MailMug::Util::build_mail( $entry );
+
+    require MIME::Base64;
+    require Encode;
+    my $subject = Encode::decode_utf8( MIME::Base64::decode_base64( $mail->{ subject_base64 } ) );
+    my $plugin = MT->component( 'MailMug' );
+    my $cfg = MT->config;
+    my $from_addr = $plugin->get_config_value( 'from', "blog:@{[ $blog->id ]}" ) ||
+        $cfg->EmailAddressMain;
+    my $reply_to =
+        $plugin->get_config_value( 'reply_to', "blog:@{[ $blog->id ]}" ) ||
+        $cfg->EmailReplyTo ||
+        $cfg->EmailAddressMain;
+    my $return_path =
+        $plugin->get_config_value( 'return_path', "blog:@{[ $blog->id ]}" ) ||
+        $from_addr;
+    $from_addr = undef if $from_addr && !is_valid_email( $from_addr );
+    $reply_to  = undef if $reply_to  && !is_valid_email( $reply_to );
+    $return_path  = undef if $return_path  && !is_valid_email( $return_path );
+
+    foreach my $recipient ( @recipients ) {
+        my $mail_mug_id = $entry->id . '-test';
+        my %header = ( id => 'mail_mug',
+                       $from_addr ? ( From       => $from_addr ) : (),
+                       $reply_to  ? ( 'Reply-To' => $reply_to )  : (),
+                       $return_path ? ( 'Return-Path' => $return_path ) : (),
+                       'X-MailMug-ID' => $mail_mug_id,
+                       To => $recipient,
+                       Subject => $subject,
+                       'Content-Type' => $mail->{ content_type },
+                       'Content-Transfer-Encoding' => $mail->{ content_transfer_encoding }
+        );
+        my $body = $mail->{ body };
+
+        require MailMug::Mailer;
+        MailMug::Mailer->send( \%header, $body )
+            or die MailMug::Mailer->errstr;
+    }
+
+    $app->build_page( 'email_testing_completed.tmpl', { recipients => \@recipients } );
+}
+
 1;

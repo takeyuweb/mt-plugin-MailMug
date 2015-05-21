@@ -1,0 +1,27 @@
+<mt:var name="screen_id" value="email-testing">
+<mt:setvarblock name="page_title"><__trans phrase="Send Test Email"></mt:setvarblock>
+<mt:setvarblock name="action_buttons">
+    <button
+            type="submit"
+            accesskey="x"
+            title="<__trans phrase="Close (x)">"
+            class="action button mt-close-dialog">
+        <__trans phrase="Close">
+    </button>
+</mt:setvarblock>
+
+<mt:include name="dialog/header.tmpl" />
+
+<mtapp:statusmsg
+     id="completed"
+     class="success">
+    <__trans phrase="Email sending has completed.">
+</mtapp:statusmsg>
+
+<mt:loop name="recipients">
+<li><$mt:var name="__value__" escape="html"$></li>
+</mt:loop>
+
+<mt:include name="include/actions_bar.tmpl" bar_position="bottom" hide_pager="1" settings_bar="1" />
+
+<mt:include name="dialog/footer.tmpl" />

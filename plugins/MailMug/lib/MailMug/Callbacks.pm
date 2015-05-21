@@ -139,4 +139,23 @@ sub _hdlr_mail_filter_sending_intercept {
   1;
 }
 
+# メールテスト送信ボタン
+sub _hdlr_append_preview {
+my ( $cb, $app, $param, $tmpl ) = @_;
+  my $blog = $app->blog or return 1;
+  my $plugin = MT->component( 'MailMug' );
+
+  my $permalink_node = $tmpl->getElementById( 'permalink' );
+  my $test_button = <<'TMPL';
+<__trans_section component="MailMug">
+<mt:Unless name="new_object">
+<a href="<mt:var name="script_url">?__mode=email_testing&amp;blog_id=<mt:var name="blog_id" escape="url">&amp;entry_id=<mt:var name="id" escape="url">" class="button<mt:unless name="from_email"> disabled<mt:else> mt-open-dialog</mt:unless>"<mt:unless name="from_email"> onclick="return false;"</mt:unless>><__trans phrase="Email Testing"></a>
+</mt:Unless>
+</__trans_section>
+TMPL
+  $permalink_node->innerHTML( $permalink_node->innerHTML . $test_button );
+
+  1;
+}
+
 1;

@@ -29,6 +29,10 @@ our %Lexicon = (
     '__PLUGIN_DESCRIPTION__' => 'メールマガジンを配信管理できるようになります。',
     'Role for subscription form' => '購読フォームから登録されたユーザのロール',
     'Registraiton Form' => '登録フォーム',
+    'Email Testing' => 'テストメール',
+    'Enter e-mail address with a new line-delimited.' => 'メールアドレスを改行区切りで入力',
+    'Please enter recipients.' => '宛先を入力して下さい',
+    'Email sending has completed.' => 'テストメールを送信しました。',
 );
 
 1;

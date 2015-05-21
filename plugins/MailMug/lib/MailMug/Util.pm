@@ -255,4 +255,34 @@ sub create_subscriber {
     return $user;
 }
 
+sub build_page {
+    my ( $tmpl_name, $ctx_vars, $param ) = @_;
+    my $app = MT->instance;
+    my $blog = $app->blog;
+    my $plugin = MT->component( 'MailMug' );
+
+    require MT::Template;
+    require MT::Template::Context;
+    my $tmpl = MT::Template->load( {
+        type    => $tmpl_name,
+        blog_id => [$blog->id, 0]
+    } );
+    unless ( defined $tmpl ) {
+        $tmpl = $plugin->load_tmpl( File::Spec->catfile( 'tmpl', "@{[ $tmpl_name ]}.tmpl" ) );
+    }
+    $app->set_default_tmpl_params( $tmpl );
+
+    my $ctx = $tmpl->context;
+    $ctx->stash( 'blog', $blog );
+    if ( defined $ctx_vars ) {
+        foreach my $key ( keys %$ctx_vars ) {
+            my $value = $ctx_vars->{ $key };
+            $ctx->stash( $key, $value );
+        }
+    }
+
+    return $app->build_page( $tmpl, $param );
+}
+
+
 1;
