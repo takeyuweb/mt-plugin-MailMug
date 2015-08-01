@@ -49,9 +49,28 @@ sub add {
     require MIME::Base64;
     my $title = $app->_build_confirmation_mail_tmpl( 'mail_mug_confirmation_sub', $email, $key );
     my $html = $app->_build_confirmation_mail_tmpl( 'mail_mug_confirmation', $email, $key );
-    my $content_type = 'text/html;charset="utf-8"';
-    my $body = MIME::Base64::encode_base64( Encode::encode_utf8( $html ) );
-    my $content_transfer_encoding = 'base64';
+    my $text = $app->_build_confirmation_mail_tmpl( 'mail_mug_confirmation_txt', $email, $key );
+
+    require Encode;
+    require MIME::Entity;
+    my $mime = MIME::Entity->build( Type => 'multipart/alternative' );
+    $mime->attach(
+        Type    => 'text/plain;charset="utf-8"',
+        Data    => [ Encode::encode_utf8( $text ) ],
+        Encoding => 'base64',                           # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース
+    );
+
+    my $related = $mime->attach( Type => 'multipart/related' );
+    $related->attach(
+        Type    => 'text/html;charset="UTF-8"',
+        Data    => [ Encode::encode_utf8( $html ) ],
+        Encoding => 'base64',                               # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース
+    );
+
+    my $head = $mime->head;
+    my $content_transfer_encoding = '7bit';
+    my $content_type = $head->get( 'Content-Type' );
+    my $body = $mime->stringify_body;
     my $encoded_subject = MIME::Base64::encode_base64( Encode::encode_utf8( $title ) );
     my %mail = (
         subject_base64 => $encoded_subject,    # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース

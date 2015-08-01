@@ -34,7 +34,8 @@ our %Lexicon = (
     'Please enter recipients.' => '宛先を入力して下さい',
     'Email sending has completed.' => 'テストメールを送信しました。',
     'Confirmation Subject' => '確認メール件名',
-    'Confirmation Body' => '確認メール本文',
+    'Confirmation HTML Body' => '確認メール本文（HTMLパート）',
+    'Confirmation Text Body' => '確認メール本文（プレーンテキストパート）',
 );
 
 1;

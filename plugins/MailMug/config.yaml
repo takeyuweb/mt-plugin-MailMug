@@ -41,7 +41,9 @@ themes:
                             mail_mug_confirmation_sub:
                                 label: Confirmation Subject
                             mail_mug_confirmation:
-                                label: Confirmation Body
+                                label: Confirmation HTML Body
+                            mail_mug_confirmation_txt:
+                                label: Confirmation Text Body
 permissions:
     blog.subscribe_mail_mug:
         label: Subscribe to e-mail magazine
