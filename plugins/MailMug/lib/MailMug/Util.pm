@@ -4,7 +4,7 @@ use warnings;
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT_OK = qw( check_for_sending mail_mug_enabled generate_key get_roles find_by_sql build_mail csv
-                     create_subscriber );
+                     create_subscriber create_email_confirmation verify_email_confirmation );
 use MT::Util qw( decode_url is_valid_email );
 
 sub check_for_sending {
@@ -293,7 +293,13 @@ sub send_mail {
 
     my $recipient = $opts->{ to } or return;
     my $mail_mug_id = $opts->{ mail_mug_id };
-    my $blog_id = $mail->{ entry }->{ blog_id } or return;
+    my $blog_id;
+    if ( exists $mail->{ entry } ) {
+        $blog_id = $mail->{ entry }->{ blog_id };
+    } else {
+        $blog_id = $mail->{ blog_id };
+    }
+    return unless $blog_id;
 
     require MIME::Base64;
     require Encode;
@@ -327,6 +333,44 @@ sub send_mail {
     require MailMug::Mailer;
     MailMug::Mailer->send( \%header, $mail->{ body } )
         or die MailMug::Mailer->errstr;
+}
+
+sub create_email_confirmation {
+    my ( $email ) = @_;
+    my $key = generate_key();
+    my $session = MT->model( 'session' )->new;
+    $session->kind( 'MM' ); # MailMug
+    $session->start( time );
+    $session->email( $email );
+    $session->name( $key );
+    $session->id( $key );
+    $session->save or die $session->errstr;
+    return $key;
+}
+
+sub verify_email_confirmation {
+    my ( $key ) = @_;
+    my $session = MT->model( 'session' )->load( $key );
+    return unless $session;
+    my $expires_at = $session->start + 600;
+    if ( $expires_at > time ) {
+        my $author = create_subscriber( $session->email );
+        $session->remove;
+        return $author;
+    } else {
+        $session->remove;
+        return;
+    }
+}
+
+sub remove_old_email_confirmations {
+    my @sessions = MT->model( 'session' )->load(
+          { kind => 'MM', start => [ undef, time - 600 ] },
+          { range => { start => 1 } } );
+    foreach my $session (@sessions) {
+        $session->remove;
+    }
+    return 1;
 }
 
 1;

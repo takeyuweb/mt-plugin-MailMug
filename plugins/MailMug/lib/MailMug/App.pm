@@ -43,16 +43,82 @@ sub add {
         if ( $author->status == MT->model( 'author' )->INACTIVE() ) {
             return $app->form( banned => 1 );
         }
-    } else {
-        $author = MailMug::Util::create_subscriber( $email );
     }
-    my $role = $app->_get_role();
-    MT->model( 'association' )->link( $author => $role => $blog );
+    my $key = MailMug::Util::create_email_confirmation( $email );
+
+    require MIME::Base64;
+    my $title = $app->_build_confirmation_mail_tmpl( 'mail_mug_confirmation_sub', $email, $key );
+    my $html = $app->_build_confirmation_mail_tmpl( 'mail_mug_confirmation', $email, $key );
+    my $content_type = 'text/html;charset="utf-8"';
+    my $body = MIME::Base64::encode_base64( Encode::encode_utf8( $html ) );
+    my $content_transfer_encoding = 'base64';
+    my $encoded_subject = MIME::Base64::encode_base64( Encode::encode_utf8( $title ) );
+    my %mail = (
+        subject_base64 => $encoded_subject,    # 一部バージョン(ex 5.8.8) のStorableでマルチバイト文字を含む場合復元できなくなるケース
+        content_type => $content_type,
+        content_transfer_encoding => $content_transfer_encoding,
+        body => $body,
+        blog_id => $blog->id
+    );
+    MailMug::Util::send_mail( \%mail, { to => $email } )
+        or die 'Confirmation sending error';
 
     my $uri =$app->uri(mode => 'form',
                     args => {
                         blog_id => $blog->id,
                         added => 1,
+                    }
+                );
+    $app->redirect( $uri );
+}
+
+sub _build_confirmation_mail_tmpl {
+    my $app = shift;
+    my ( $tmpl_type, $email, $key ) = @_;
+    my $blog = $app->blog;
+    my $blog_id = $blog->id;
+    require MT::Template;
+    require MT::Template::Context;
+    my $tmpl = MT::Template->load( {
+        type    => $tmpl_type,
+        blog_id => $blog_id,
+    } );
+    unless ( defined $tmpl ) {
+        require File::Spec;
+        my $plugin = MT->component( 'MailMug' );
+        $tmpl = $plugin->load_tmpl( File::Spec->catfile( 'templates', "@{[ $tmpl_type ]}.mtml" ) );
+    }
+    $app->set_default_tmpl_params( $tmpl );
+
+    my $ctx  = MT::Template::Context->new;
+    $ctx->stash( 'blog', $blog );
+    $ctx->{ __stash }->{ vars }->{ blog_id } = $blog_id;
+    $ctx->{ __stash }->{ vars }->{ key } = $key;
+    $ctx->{ __stash }->{ vars }->{ email } = $email;
+    $tmpl->context( $ctx );
+
+    my $body = $tmpl->build( $ctx );
+}
+
+sub submit {
+    my $app = shift;
+    my $blog = $app->blog or
+        return $app->trans_error( 'Invalid request' );
+    unless ( MailMug::Util::mail_mug_enabled( $blog ) ) {
+        return $app->trans_error( 'Invalid request' );
+    }
+
+    my $key = $app->param( 'key' );
+    my $author = MailMug::Util::verify_email_confirmation( $key );
+    if ( $author ) {
+        my $role = $app->_get_role();
+        MT->model( 'association' )->link( $author => $role => $blog );
+    }
+    my $uri =$app->uri(mode => 'form',
+                    args => {
+                        blog_id => $blog->id,
+                        confirmed => $author ? 1 : 0,
+                        expired => $author ? 0 : 1,
                     }
                 );
     $app->redirect( $uri );

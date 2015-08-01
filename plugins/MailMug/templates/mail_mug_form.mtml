@@ -15,7 +15,7 @@
 <h2>Add your E-mail address to the List.</h2>
 
 <mt:if name="request.added">
-    <p style="color: blue">Registration success.</p>
+    <p style="color: blue">You will receive an email with instructions for how to confirm your email address in a few minutes.</p>
 </mt:if>
 <mt:If name="request.__mode" eq="add">
     <mt:if name="request.invalid">
@@ -24,6 +24,12 @@
 </mt:If>
 <mt:if name="request.banned">
     <p style="color: red">Your E-Mail Address is being blocked.</p>
+</mt:if>
+<mt:if name="request.confirmed">
+    <p style="color: green">Registration success.</p>
+</mt:if>
+<mt:if name="request.expired">
+    <p style="color: red">The confirmation token has expired.</p>
 </mt:if>
 
 <form action="<$mt:CGIPath$><$mt:MailMugAppScript$>" method="POST">

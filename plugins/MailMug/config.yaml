@@ -38,6 +38,10 @@ themes:
                                 label: HTML Body
                             mail_mug_form:
                                 label: Registraiton Form
+                            mail_mug_confirmation_sub:
+                                label: Confirmation Subject
+                            mail_mug_confirmation:
+                                label: Confirmation Body
 permissions:
     blog.subscribe_mail_mug:
         label: Subscribe to e-mail magazine
@@ -107,6 +111,7 @@ applications:
             form: $MailMug::MailMug::App::form
             add: $MailMug::MailMug::App::add
             remove: $MailMug::MailMug::App::remove
+            submit: $MailMug::MailMug::App::submit
 
 content_actions:
     member:
@@ -147,6 +152,12 @@ task_workers:
   mail_mug:
     label: MailMug
     class: MailMug::Worker
+
+tasks:
+  RemoveOldEmailConfirmations:
+    label: 'Remove Old email confirmations'
+    frequency: 600
+    code: $MailMug::MailMug::Util::remove_old_email_confirmations()
 
 system_config_template: mailmug_config.tmpl
 blog_config_template: mailmug_blog_config.tmpl
