@@ -155,7 +155,7 @@ my ( $cb, $app, $param, $tmpl ) = @_;
   my $test_button = <<'TMPL';
 <__trans_section component="MailMug">
 <mt:Unless name="new_object">
-<a href="<mt:var name="script_url">?__mode=email_testing&amp;blog_id=<mt:var name="blog_id" escape="url">&amp;entry_id=<mt:var name="id" escape="url">" class="button<mt:unless name="from_email"> disabled<mt:else> mt-open-dialog</mt:unless>"<mt:unless name="from_email"> onclick="return false;"</mt:unless>><__trans phrase="Email Testing"></a>
+<a href="<mt:var name="script_url">?__mode=email_testing&amp;blog_id=<mt:var name="blog_id" escape="url">&amp;entry_id=<mt:var name="id" escape="url">" class="button mt-open-dialog"><__trans phrase="Email Testing"></a>
 </mt:Unless>
 </__trans_section>
 TMPL
