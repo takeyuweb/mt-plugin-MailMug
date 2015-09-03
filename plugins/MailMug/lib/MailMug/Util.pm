@@ -354,7 +354,16 @@ sub verify_email_confirmation {
     return unless $session;
     my $expires_at = $session->start + 600;
     if ( $expires_at > time ) {
-        my $author = create_subscriber( $session->email );
+        my $email = $session->email;
+        my %terms = (
+            email     => $email,
+            type      => MT->model( 'author' )->AUTHOR(),
+            auth_type => 'MT'
+        );
+        my $author = MT->model( 'author' )->load( \%terms, { limit => 1 } );
+        unless ( defined $author ) {
+            $author = create_subscriber( $email );
+        }
         $session->remove;
         return $author;
     } else {

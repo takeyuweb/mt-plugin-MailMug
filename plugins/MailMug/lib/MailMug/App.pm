@@ -131,7 +131,21 @@ sub submit {
     my $author = MailMug::Util::verify_email_confirmation( $key );
     if ( $author ) {
         my $role = $app->_get_role();
-        MT->model( 'association' )->link( $author => $role => $blog );
+        my $association_terms =
+            MT->model( 'association' )->objects_to_terms(
+                $author => $role => $blog );
+        if ( MT->model( 'association' )->count( $association_terms ) == 0 ) {
+            MT->model( 'association' )->link( $author => $role => $blog );
+            MT->log({
+                message  => MT->translate( 'The user has subscribed to the e-mail magazine.' ),
+                blog_id     => $blog->id,
+                lebel        => MT::Log::INFO(),
+                ip            => $app->remote_ip,
+                author_id  => $author->id,
+                metadata => $author->email
+            });
+        }
+
     }
     my $uri =$app->uri(mode => 'form',
                     args => {
@@ -168,10 +182,24 @@ sub remove {
         type      => MT->model( 'author' )->AUTHOR(),
         auth_type => 'MT'
     );
-    my $author = MT->model( 'author' )->load( \%terms, { limit => 1 } );
-    if ( defined $author ) {
-        my $role = $app->_get_role();
-        MT->model( 'association' )->unlink( $author => $role => $blog );
+    my @authors = MT->model( 'author' )->load( \%terms );
+    if ( @authors ) {
+        foreach my $author ( @authors ) {
+            my $role = $app->_get_role();
+            my $association_terms =
+                MT->model( 'association' )->objects_to_terms( $author => $role => $blog );
+            if ( MT->model( 'association' )->count( $association_terms ) ) {
+                MT->model( 'association' )->unlink( $author => $role => $blog );
+                MT->log({
+                    message => MT->translate( 'The user has canceled subscription of e-mail magazine.' ),
+                    blog_id    => $blog->id,
+                    lebel       => MT::Log::INFO(),
+                    ip           => $app->remote_ip,
+                    author_id => $author->id,
+                    metadata => $email
+                });
+            }
+        }
     }
 
     my $uri =$app->uri(mode => 'form',

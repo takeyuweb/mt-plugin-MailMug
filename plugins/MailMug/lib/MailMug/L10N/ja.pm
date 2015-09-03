@@ -36,6 +36,8 @@ our %Lexicon = (
     'Confirmation Subject' => '確認メール件名',
     'Confirmation HTML Body' => '確認メール本文（HTMLパート）',
     'Confirmation Text Body' => '確認メール本文（プレーンテキストパート）',
+    'The user has subscribed to the e-mail magazine.' => 'ユーザーがメールマガジンの購読に登録しました。',
+    'The user has canceled subscription of e-mail magazine.' => 'ユーザーがメールマガジンの購読をキャンセルしました。',
 );
 
 1;
