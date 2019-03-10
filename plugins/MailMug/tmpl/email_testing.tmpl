@@ -1,49 +1,60 @@
-<mt:var name="screen_id" value="email-testing">
-<mt:setvarblock name="page_title"><__trans phrase="Send Test Email"></mt:setvarblock>
-<mt:setvarblock name="action_buttons">
-    <button
-            type="submit"
-            accesskey="s"
-            title="<__trans phrase="Send (s)">"
-            class="send action primary button">
-        <__trans phrase="Send">
-    </button>
-    <button
-            type="submit"
-            accesskey="x"
-            title="<__trans phrase="Cancel (x)">"
-            class="cancel action button mt-close-dialog">
-        <__trans phrase="Cancel">
-    </button>
+<mt:setvarblock name="html_head" append="1">
 </mt:setvarblock>
 
-<mt:include name="dialog/header.tmpl" />
+<mt:setvarblock name="page_content">
+    <div class="modal-header">
+        <h4 class="modal-title"><__trans phrase="Send Test Email"></h4>
+        <button type="button" class="close" aria-label="Close" data-mt-modal-close>
+            <span aria-hidden="true">×</span>
+        </button>
+    </div>
+    <mt:if name="doing">
+        <div class="modal-description">
+        <mtapp:statusmsg id="doing" class="error">
+            <__trans phrase="Please enter recipients.">
+        </mtapp:statusmsg>
+        </div>
+    </mt:if>
 
-<mt:if name="doing">
-  <mtapp:statusmsg
-     id="doing"
-     class="error">
-    <__trans phrase="Please enter recipients.">
-  </mtapp:statusmsg>
-</mt:if>
+    <form action="<$MTVar name='script_url'$>" method="POST" class="form">
+        <input type="hidden" name="__mode" value="do_email_testing" />
+        <input type="hidden" name="magic_token" value="<mt:var name="magic_token">" />
+        <input type="hidden" name="blog_id" value="<$MTVar name='blog_id'$>" />
+        <input type="hidden" name="entry_id" value="<$MTVar name='entry_id'$>" />
 
-<form action="<$MTVar name='script_url'$>" method="POST">
-    <input type="hidden" name="__mode" value="do_email_testing" />
-    <input type="hidden" name="magic_token" value="<mt:var name="magic_token">" />
-    <input type="hidden" name="blog_id" value="<$MTVar name='blog_id'$>" />
-    <input type="hidden" name="entry_id" value="<$MTVar name='entry_id'$>" />
+        <div class="modal-body">
+            <p>テストメールは記事のプレビューと異なり、未保存の記事の内容は反映されません。送信前に記事を保存してください。</p>
 
-    <mtapp:setting
-       id="description"
-       label_class="top-label"
-       label="<__trans phrase="Recipients">"
-       show_hint="1"
-       hint="<__trans phrase="Enter e-mail address with a new line-delimited.">">
-      <textarea name="recipients" id="recipients" class="text full high"></textarea>
-    </mtapp:setting>
+            <div class="form-group">
+                <mtapp:setting
+                    id="description"
+                    label_class="top-label"
+                    label="<__trans phrase="Recipients">"
+                    show_hint="1"
+                    hint="<__trans phrase="Enter e-mail address with a new line-delimited.">">
+                    <textarea name="recipients" id="recipients" class="form-control" rows="10"></textarea>
+                </mtapp:setting>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button
+                type="submit"
+                accesskey="s"
+                title="<__trans phrase="Send (s)">"
+                class="send action primary button btn btn-primary">
+                <__trans phrase="Send">
+            </button>
+            <button
+                class="action cancel button btn btn-default"
+                accesskey="x"
+                title="<__trans phrase="Cancel (x)">"
+                data-mt-modal-close>
+                <__trans phrase="Cancel">
+            </button>
+        </div>
+    </form>
 
-    <mt:include name="include/actions_bar.tmpl" bar_position="bottom" hide_pager="1" settings_bar="1" />
-</form>
+</mt:setvarblock>
 
-
-<mt:include name="dialog/footer.tmpl" />
+<mt:include name="layout/modal.tmpl">
+<mt:var name="layout">

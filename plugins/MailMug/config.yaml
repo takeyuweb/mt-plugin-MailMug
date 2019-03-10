@@ -76,7 +76,6 @@ callbacks:
           priority: 10
     MT::App::CMS::template_param.edit_entry:
         - handler: $MailMug::MailMug::Callbacks::_hdlr_append_delivering_field
-        - handler: $MailMug::MailMug::Callbacks::_hdlr_append_preview
 
 applications:
     cms:
@@ -86,7 +85,6 @@ applications:
                 order: 500
                 view:
                     - website
-                    - blog
                 mode: start_import_subscripters
                 dialog: 1
                 permission: manage_users
@@ -95,7 +93,7 @@ applications:
                         my $app = MT->instance;
                         my $blog = $app->blog;
                         require MailMug::Util;
-                        MailMug::Util::mail_mug_enabled( $blog ) && $blog->is_blog;
+                        MailMug::Util::mail_mug_enabled( $blog );
                     }
         methods:
             start_import_subscripters: $MailMug::MailMug::CMS::start_import_subscripters
