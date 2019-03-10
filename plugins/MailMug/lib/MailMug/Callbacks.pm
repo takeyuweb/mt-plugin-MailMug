@@ -89,7 +89,9 @@ sub _hdlr_append_delivering_field {
   <input type="checkbox" name="mm_allow_delivering" id="mm_allow_delivering" value="1"<mt:if name="mm_allow_delivering"> checked="checked"</mt:if> class="cb" /> <label for="mm_allow_delivering"><__trans phrase="Allow Delivering"></label>
   <input type="hidden" name="mm_allow_delivering" value="0">
 </mt:If>
+<mt:If name="id">
 <a href="<mt:var name="script_url">?__mode=email_testing&amp;blog_id=<mt:var name="blog_id" escape="url">&amp;entry_id=<mt:var name="id" escape="url">" class="btn btn-default mt-open-dialog mt-modal-open" data-mt-modal-large><__trans phrase="Email Testing"></a>
+</mt:If>
 </__trans_section>
 <mt:Unless name="mail_mug_enabled">
 <style type="text/css">
