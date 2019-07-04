@@ -1,15 +1,5 @@
-<mt:include name="dialog/header.tmpl" />
-
-<p><__trans phrase="Importing ... (already completed up to [_1])" params="<mt:var name='from' _default='0' escape='html'>"></p>
-
-<form id="next_step" action="<$MTVar name='script_url'$>" method="GET">
-    <input type="hidden" name="__mode" value="import_subscripters" />
-    <input type="hidden" name="magic_token" value="<mt:var name='magic_token' escape='html'>" />
-    <input type="hidden" name="blog_id" value="<$MTVar name='blog_id'$>" />
-    <input type="hidden" name="out" value="<$MTVar name='out' escape='html'$>" />
-    <input type="hidden" name="from" value="<$MTVar name='from' escape='html'$>" />
-    <input type="hidden" name="skipped" value="<$MTVar name='skipped' escape='html'$>" />
-</form>
+<mt:setvarblock name="html_head" append="1">
+</mt:setvarblock>
 
 <mt:SetVarBlock name="jq_js_include" append="1">
     jQuery(function(){
@@ -17,5 +7,25 @@
     });
 </mt:SetVarBlock>
 
-<mt:include name="dialog/footer.tmpl" />
+<mt:setvarblock name="page_content">
+    <div class="modal-header">
+        <h4 class="modal-title"><__trans phrase="Send Test Email"></h4>
+    </div>
+
+    <form id="next_step" action="<$MTVar name='script_url'$>" method="GET">
+        <input type="hidden" name="__mode" value="import_subscripters" />
+        <input type="hidden" name="magic_token" value="<mt:var name='magic_token' escape='html'>" />
+        <input type="hidden" name="blog_id" value="<$MTVar name='blog_id'$>" />
+        <input type="hidden" name="out" value="<$MTVar name='out' escape='html'$>" />
+        <input type="hidden" name="from" value="<$MTVar name='from' escape='html'$>" />
+        <input type="hidden" name="skipped" value="<$MTVar name='skipped' escape='html'$>" />
+
+        <div class="modal-body">
+            <p><__trans phrase="Importing ... (already completed up to [_1])" params="<mt:var name='from' _default='0' escape='html'>"></p>
+        </div>
+    </form>
+</mt:setvarblock>
+
+<mt:include name="layout/modal.tmpl">
+<mt:var name="layout">
 

@@ -78,7 +78,7 @@ sub _hdlr_append_delivering_field {
 
   my $plugin = MT->component( 'MailMug' );
 
-  my $host_node = $tmpl->getElementById( 'entry-status-widget' );
+  my $host_node = $tmpl->getElementById( 'entry-publishing-widget' );
   my $innerHTML = <<'TMPL';
 <__trans_section component="MailMug">
 <mt:If name="mm_sent_on" gt="0">
@@ -88,7 +88,9 @@ sub _hdlr_append_delivering_field {
 <mt:Else>
   <input type="checkbox" name="mm_allow_delivering" id="mm_allow_delivering" value="1"<mt:if name="mm_allow_delivering"> checked="checked"</mt:if> class="cb" /> <label for="mm_allow_delivering"><__trans phrase="Allow Delivering"></label>
   <input type="hidden" name="mm_allow_delivering" value="0">
-  <input type="hidden" name="mm_sent_on" value="<$mt:getvar name='mm_sent_on' escape='html'$>">
+</mt:If>
+<mt:If name="id">
+<a href="<mt:var name="script_url">?__mode=email_testing&amp;blog_id=<mt:var name="blog_id" escape="url">&amp;entry_id=<mt:var name="id" escape="url">" class="btn btn-default mt-open-dialog mt-modal-open" data-mt-modal-large><__trans phrase="Email Testing"></a>
 </mt:If>
 </__trans_section>
 <mt:Unless name="mail_mug_enabled">
@@ -139,28 +141,6 @@ sub _hdlr_mail_filter_sending_intercept {
       return 0;
     }
   }
-  1;
-}
-
-# メールテスト送信ボタン
-sub _hdlr_append_preview {
-my ( $cb, $app, $param, $tmpl ) = @_;
-  my $blog = $app->blog or return 1;
-  return 1 if $app->param( '_type' ) eq 'page';
-  return 1 unless MailMug::Util::mail_mug_enabled( $blog );
-
-  my $plugin = MT->component( 'MailMug' );
-
-  my $permalink_node = $tmpl->getElementById( 'permalink' );
-  my $test_button = <<'TMPL';
-<__trans_section component="MailMug">
-<mt:Unless name="new_object">
-<a href="<mt:var name="script_url">?__mode=email_testing&amp;blog_id=<mt:var name="blog_id" escape="url">&amp;entry_id=<mt:var name="id" escape="url">" class="button mt-open-dialog"><__trans phrase="Email Testing"></a>
-</mt:Unless>
-</__trans_section>
-TMPL
-  $permalink_node->innerHTML( $permalink_node->innerHTML . $test_button );
-
   1;
 }
 

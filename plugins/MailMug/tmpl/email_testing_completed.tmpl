@@ -1,27 +1,40 @@
-<mt:var name="screen_id" value="email-testing">
-<mt:setvarblock name="page_title"><__trans phrase="Send Test Email"></mt:setvarblock>
-<mt:setvarblock name="action_buttons">
-    <button
-            type="submit"
-            accesskey="x"
-            title="<__trans phrase="Close (x)">"
-            class="action button mt-close-dialog">
-        <__trans phrase="Close">
-    </button>
+<mt:setvarblock name="html_head" append="1">
 </mt:setvarblock>
 
-<mt:include name="dialog/header.tmpl" />
+<mt:setvarblock name="page_content">
+    <div class="modal-header">
+        <h4 class="modal-title"><__trans phrase="Send Test Email"></h4>
+        <button type="button" class="close" aria-label="Close" data-mt-modal-close>
+            <span aria-hidden="true">×</span>
+        </button>
+    </div>
 
-<mtapp:statusmsg
-     id="completed"
-     class="success">
-    <__trans phrase="Email sending has completed.">
-</mtapp:statusmsg>
+    <div class="modal-description">
+        <mtapp:statusmsg
+             id="completed"
+             class="success">
+            <__trans phrase="Email sending has completed.">
+        </mtapp:statusmsg>
+    </div>
 
-<mt:loop name="recipients">
-<li><$mt:var name="__value__" escape="html"$></li>
-</mt:loop>
+    <div class="modal-body">
+        <ul>
+        <mt:loop name="recipients">
+        <li><$mt:var name="__value__" escape="html"$></li>
+        </mt:loop>
+        </ul>
+    </div>
 
-<mt:include name="include/actions_bar.tmpl" bar_position="bottom" hide_pager="1" settings_bar="1" />
+    <div class="modal-footer">
+        <button
+            class="action button btn btn-default"
+            accesskey="x"
+            title="<__trans phrase="Close (x)">"
+            data-mt-modal-close>
+            <__trans phrase="Close">
+        </button>
+    </div>
+</mt:setvarblock>
 
-<mt:include name="dialog/footer.tmpl" />
+<mt:include name="layout/modal.tmpl">
+<mt:var name="layout">

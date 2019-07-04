@@ -1,39 +1,34 @@
-<mt:include name="dialog/header.tmpl" />
-
-<p><__trans phrase="Start the import."></p>
-<p><__trans phrase="Existing users will not be overwritten."></p>
-<p><__trans phrase="Please do not do during other operations."></p>
-
-<mt:setvarblock name="action_buttons">
-    <button
-            type="submit"
-            accesskey="s"
-            title="<__trans phrase="Upload and Import Archive (s)">"
-    class="send action primary button">
-    <__trans phrase="Upload">
-        </button>
-        <button
-                type="submit"
-                accesskey="x"
-                title="<__trans phrase="Cancel (x)">"
-        class="cancel action button mt-close-dialog">
-        <__trans phrase="Cancel">
-            </button>
+<mt:setvarblock name="html_head" append="1">
 </mt:setvarblock>
 
-<form action="<$MTVar name='script_url'$>" method="POST" enctype="multipart/form-data">
-    <input type="hidden" name="__mode" value="import_subscripters" />
-    <input type="hidden" name="magic_token" value="<mt:var name="magic_token">" />
-    <input type="hidden" name="blog_id" value="<$MTVar name='blog_id'$>" />
+<mt:SetVarBlock name="jq_js_include" append="1">
+</mt:SetVarBlock>
 
-    <p><input type="file" name="file"/></p>
+<mt:setvarblock name="page_content">
+    <div class="modal-header">
+        <h4 class="modal-title"><__trans phrase="Import E-mail magazine subscribers"></h4>
+        <button type="button" class="close" aria-label="Close" data-mt-modal-close>
+            <span aria-hidden="true">×</span>
+        </button>
+    </div>
 
-    <mt:include name="include/actions_bar.tmpl" bar_position="bottom" hide_pager="1" settings_bar="1" />
-</form>
+    <form action="<$MTVar name='script_url'$>" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="__mode" value="import_subscripters" />
+        <input type="hidden" name="magic_token" value="<mt:var name="magic_token">" />
+        <input type="hidden" name="blog_id" value="<$MTVar name='blog_id'$>" />
 
-ex)
-<pre>
-test01@example.com
+        <div class="modal-body">
+            <p><__trans phrase="Start the import."></p>
+            <p><__trans phrase="Existing users will not be overwritten."></p>
+            <p><__trans phrase="Please do not do during other operations."></p>
+
+            <div class="form-group">
+                <input type="file" name="file"/>
+            </div>
+
+            <div class="form-group">
+                <p>アップロードするファイルの例</p>
+                <textarea class="form-control" rows="5" disabled readonly>test01@example.com
 test02@example.com
 test03@example.com
 test04@example.com
@@ -42,8 +37,28 @@ test06@example.com
 test07@example.com
 test08@example.com
 test09@example.com
-test10@example.com
-</pre>
+test10@example.com</textarea>
+            </div>
+        </div>
 
-<mt:include name="dialog/footer.tmpl" />
+        <div class="modal-footer">
+            <button
+                type="submit"
+                accesskey="s"
+                title="<__trans phrase="Upload (s)">"
+                class="send action primary button btn btn-primary">
+                <__trans phrase="Upload">
+            </button>
+            <button
+                class="action cancel button btn btn-default"
+                accesskey="x"
+                title="<__trans phrase="Cancel (x)">"
+                data-mt-modal-close>
+                <__trans phrase="Cancel">
+            </button>
+        </div>
+    </form>
+</mt:setvarblock>
 
+<mt:include name="layout/modal.tmpl">
+<mt:var name="layout">
