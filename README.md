@@ -13,8 +13,7 @@ Movable Type でメールマガジンを配信・管理できるようになり�
 ###要件
 
 * Movable Type バージョン
-  * 5.1 / 5.2 / 6.X
-　* クラウド版
+  * 7
 * CRONが設定可能
 * MySQL（その他のDBMSは未検証）
 * MIME-tools
